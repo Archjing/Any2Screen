@@ -624,55 +624,40 @@ table { font-size: 0.9em; }
 
 
 def render_pdf(html_path: Path, pdf_path: Path, verbose: bool = False, wechat: bool = False) -> bool:
-    """Render a self-contained HTML file to PDF via headless Chromium.
-    Standard mode: A4 with print-optimized CSS.
-    WeChat mode: narrow page, larger text, tight margins for phone reading."""
+    """Render a self-contained HTML file to PDF via WeasyPrint.
+    Standard mode: A4 with @media print CSS.
+    WeChat mode: narrow page, larger text, continuous tall pages."""
     try:
-        from playwright.sync_api import sync_playwright
+        from weasyprint import HTML
     except ImportError:
         if verbose:
-            print("    PDF requires `playwright`: pip install playwright && playwright install chromium")
+            print("    PDF requires `weasyprint`: pip install weasyprint")
         return False
 
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page(viewport={"width": 820, "height": 1080})
-            page.goto(f"file://{html_path.resolve()}", wait_until="networkidle")
+        html_text = html_path.read_text(encoding="utf-8")
 
-            if wechat:
-                # Mobile reading: screen media + override + table fix + continuous tall page
-                page.emulate_media(media="screen")
-                page.add_style_tag(content=WECHAT_CSS_OVERRIDE)
-                page.add_style_tag(content=PDF_TABLE_FIX)
-                # Match viewport to PDF render width so scrollHeight is accurate
-                page.set_viewport_size({"width": 408, "height": 800})
-                page.wait_for_timeout(300)  # let reflow settle
-                content_px = page.evaluate("document.body.scrollHeight")
-                # 1px = 25.4/96 = 0.26458 mm  + 12mm head/foot margin
-                content_mm = content_px * 0.26458 + 12
-                # Cap at 1000 mm for lightweight PDF reader compatibility.
-                # Taller pages (5000 mm PDF max) crash readers like SmartPDF
-                # that render the full page as a bitmap into RAM.
-                height_mm = min(content_mm, 1000)
-                page.pdf(
-                    path=str(pdf_path),
-                    width="108mm",
-                    height=f"{height_mm:.0f}mm",
-                    print_background=True,
-                    margin={"top": "6mm", "right": "5mm", "bottom": "6mm", "left": "5mm"},
-                )
-            else:
-                # Standard A4 with print CSS + table fix
-                page.emulate_media(media="print")
-                page.add_style_tag(content=PDF_TABLE_FIX)
-                page.pdf(
-                    path=str(pdf_path),
-                    format="A4",
-                    print_background=True,
-                    margin={"top": "15mm", "right": "12mm", "bottom": "15mm", "left": "12mm"},
-                )
-            browser.close()
+        if wechat:
+            # Inject wechat overrides + table fix + narrow page inside @media print
+            # (WeasyPrint uses print media — wrap in @media print to override originals)
+            inject_css = (
+                "@media print {"
+                + WECHAT_CSS_OVERRIDE
+                + PDF_TABLE_FIX
+                + "}\n"
+                + "@page { size: 108mm 1000mm; margin: 6mm 5mm; }"
+            )
+        else:
+            # A4: inject table fix + explicit page definition
+            inject_css = (
+                "@media print {"
+                + PDF_TABLE_FIX
+                + "}\n"
+                + "@page { size: A4; margin: 15mm 12mm; }"
+            )
+
+        html_text = html_text.replace("</style>", inject_css + "\n</style>")
+        HTML(string=html_text).write_pdf(str(pdf_path))
         return True
     except Exception as e:
         if verbose:
