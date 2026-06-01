@@ -1,436 +1,61 @@
 # Any2Screen
 
-<<<<<<< HEAD
-Any2Screen 的目标是开发一款能够将任意常用格式的图文文档，转换成适合移动端屏幕显示、适合网络传输和共享的格式的应用。
+Any2Screen 是一个文档转换工具集，目标是把常见图文内容转换成更适合移动端阅读、传输和分享的输出格式。
 
-初期形态是可在 Web 页面运行的工具；后期计划扩展到 iOS 移动端。产品重点是界面友好、操作简单、转换结果稳定，尽量让用户用最少步骤完成“导入文档 -> 预览 -> 导出/分享”的流程。
+当前仓库提供一个统一命令入口 `any2screen`，通过子命令调用 3 个模块：
 
-当前仓库处于原型阶段，已有代码主要是转换能力验证脚本：
+- `doc2md`：`docx/pdf/txt -> markdown`
+- `md2html`：`markdown -> 自包含 html`，可选导出 PDF
+- `md2img`：`markdown -> 长图`
 
-- `doc2md/doc2md.py`：`docx/pdf/txt -> markdown`
-- `md2html/md2html.py`：`markdown -> 自包含 html`（可选导出 PDF）
-- `md2img/md2img.py`：`markdown -> 长图`（基于 Playwright 截图）
+## 当前状态
 
-## 项目状态（截至 2026-05-31）
+当前代码更接近“转换能力原型”，不是完整应用。
 
-整体状态：**转换引擎原型可用，尚未形成完整应用架构**。
-
-现状结论：
-
-1. 仓库 Git 状态干净（无未提交改动）。
-2. `md2html` 功能最完整，支持批量、递归、watch、暗色、响应式、表格优化、可选 PDF。
-3. `doc2md` 可处理目录批量转换，支持加密 `docx`（提供密码且安装 `msoffcrypto` 时）。
-4. `md2img` 当前是固定输入输出路径，更像项目内专用脚本，不是通用 CLI。
-5. 依赖管理当前仅覆盖 `md2html/requirements.txt`，根目录尚无统一 `requirements.txt`。
-
-## 产品定位
-
-Any2Screen 不是单纯的格式转换器，而是面向移动阅读和轻量分享的文档再排版工具。
-
-核心使用场景：
-
-- 将 Word、PDF、Markdown、TXT 等文档转换为手机上易读的页面。
-- 将图文混排内容导出为 HTML、PDF、长图等适合传播的格式。
-- 在 Web 端完成上传、预览、样式调整、导出。
-- 高度融合微信使用场景，优先适配文件传输助手、微信内置浏览器、聊天文件转发、收藏和群聊分享。
-- 同时支持飞书使用场景，适配飞书聊天、云文档、群组协作、文件转发和知识沉淀。
-- 后期在 iOS 端支持本地文件导入、预览、分享和离线转换。
-
-设计原则：
-
-- 输入格式尽量宽，输出格式保持克制，优先保证质量。
-- 移动端阅读优先，桌面端作为编辑和批处理入口。
-- 微信与飞书优先，导出结果要适合在主流聊天、文件、云文档和收藏体系中流转。
-- 处理速度是核心体验指标，快速预览优先于一次性完整转换。
-- 转换流程可观察，失败原因可理解。
-- 前期单人开发，架构保持简单，可逐步演进。
-
-## 功能设计
-
-### 支持格式规划
-
-Any2Screen 的输入格式应按“高频办公文档优先，逐步覆盖图片和网页内容”的顺序推进。
-
-第一优先级：
-
-- **PDF**：合同、报告、论文、扫描件、电子书片段。
-- **Word**：`.docx`、后续兼容 `.doc`。
-- **Markdown**：`.md`、`.markdown`。
-- **纯文本**：`.txt`、日志、聊天记录导出。
-- **图片**：`.jpg`、`.jpeg`、`.png`、`.webp`，用于截图、扫描图、长图二次排版。
-
-第二优先级：
-
-- **演示文稿**：`.pptx`，常见于课程、会议材料、产品介绍。
-- **表格文件**：`.xlsx`、`.csv`，重点解决手机上表格难读的问题。
-- **网页内容**：URL、保存的 `.html`、剪贴板 HTML。
-- **富文本**：`.rtf`、从邮件/飞书/网页复制出的格式化文本。
-- **电子书格式**：`.epub`，适合移动端重排阅读。
-
-第三优先级：
-
-- **压缩包**：`.zip`，用于一次导入多个文档或图文素材。
-- **OpenDocument**：`.odt`、`.ods`、`.odp`。
-- **Apple iWork**：`.pages`、`.numbers`、`.key`，视实现成本和用户需求决定。
-- **邮件文件**：`.eml`、`.msg`，适合沉淀邮件正文和附件。
-- **OCR 场景**：扫描 PDF、拍照文档、图片中的文字识别。
-
-### 核心用户流程
-
-目标流程是让用户在微信或飞书里收到文档后，不必先下载到电脑、不必手动转换格式，就能快速阅读和决定去向。
-
-```text
-微信/飞书收到文档
-        ↓
-用 Any2Screen 打开或转发到 Any2Screen
-        ↓
-快速识别格式并生成移动端预览
-        ↓
-用户快速浏览
-        ↓
-选择处理方式：
-  1. 阅后即焚
-  2. 保存原文件到本地
-  3. 保存转换后的文件到本地
-  4. 转发到微信/飞书
-```
-
-### 文档处理策略
-
-1. **快速浏览**
-   - 默认生成移动端阅读视图。
-   - 优先展示正文、图片、表格和标题结构。
-   - 大文件先展示前几页或摘要，再后台继续转换。
-
-2. **阅后即焚**
-   - 适合临时文件、敏感资料、一次性查看的聊天附件。
-   - 不长期保存原文件和转换结果。
-   - 支持用户手动关闭后立即删除，也支持设置自动过期时间。
-   - 删除对象至少包括上传源文件、转换中间文件、导出文件和临时预览链接。
-
-3. **保存原文件到本地**
-   - 保留别人发送的原始文档。
-   - 文件名可自动规范化，保留来源、日期和扩展名。
-   - 后期 iOS 端可保存到 Files 或应用沙盒目录。
-
-4. **保存转换后的文件到本地**
-   - 根据场景保存为移动端 HTML、PDF、长图或 Markdown。
-   - 微信优先保存 PDF/长图。
-   - 飞书优先保存结构化 Markdown/HTML/PDF。
-   - 支持同时保留原文件和转换结果。
-
-5. **转发与分享**
-   - 重新发回微信文件传输助手、微信群或飞书群。
-   - 生成短期有效预览链接或二维码。
-   - 后续支持飞书机器人推送转换完成消息。
-
-### 隐私与存储策略
-
-- 默认不把用户文档长期留存在服务端。
-- 临时文件必须有明确生命周期。
-- 用户选择“阅后即焚”时，界面要清楚说明删除范围和不可恢复性。
-- 本地保存、云端保存、转发分享要分成不同操作，避免用户误触。
-- 团队协作集成必须显式授权，不能默认把私人文件推送到群组或云文档。
-
-## 性能与速度目标
-
-处理速度是 Any2Screen 的关键痛点。用户在微信或飞书中收到文件后，通常只是想先判断“这个文档值不值得读、要不要保存、要不要转发”，因此产品应优先提供快速可读结果，而不是等待完整精细转换。
-
-### 速度设计原则
-
-- **快速预览优先**：先生成可读预览，再后台生成完整导出文件。
-- **渐进式处理**：大文件先处理首页、目录、前几页或正文摘要。
-- **避免阻塞交互**：上传、识别、预览、导出要拆成不同阶段，界面持续反馈状态。
-- **缓存中间结果**：同一文件重复打开时复用解析结果、缩略图和已生成导出物。
-- **按需转换**：用户只浏览时不生成所有格式；用户点击导出后再生成 PDF、长图或 Markdown。
-- **失败要快**：不支持的格式、超大文件、损坏文件应尽早返回明确错误。
-
-### 初期性能指标
-
-这些指标用于指导 MVP，不作为最终 SLA：
-
-- 小型 Markdown/TXT（小于 1 MB）：1 秒内生成预览。
-- 常见 DOCX/PDF（小于 10 MB）：3 秒内给出首屏预览或处理状态。
-- 大文件：5 秒内展示任务状态、页数/大小信息和预计处理阶段。
-- 导出 PDF/长图：允许后台处理，但必须实时展示进度或当前阶段。
-- 重复打开同一文件：优先命中缓存，避免完整重跑转换链路。
-
-### 重点优化方向
-
-- 文件指纹：用哈希识别重复文件，复用历史转换结果。
-- 分页预览：PDF、PPT、长文档先渲染前几页。
-- 图片压缩：上传和导出时控制尺寸、质量和体积。
-- 表格降级：超宽表格先提供可横向滚动预览，导出时再做精细排版。
-- Worker 隔离：耗时任务放入后台 worker，避免阻塞 API 和前端交互。
-- 任务取消：用户选择阅后即焚或关闭任务时，尽快停止未完成的转换工作。
-
-## 协作生态融合策略
-
-微信和飞书是 Any2Screen 的核心分发、阅读和协作环境。产品设计应优先利用这些平台已有能力，而不是过早自建完整账号、云盘或社交分享系统。
-
-### 微信融合
-
-优先适配的微信通路：
-
-- **文件传输助手**：作为桌面和手机之间的默认中转入口，支持用户把原始文档或导出结果快速传到手机。
-- **聊天文件转发**：导出的 PDF、HTML 包、长图应便于直接发给好友或群聊。
-- **微信内置浏览器**：Web 预览页面需要在微信内置浏览器中保持可读、可缩放、可复制。
-- **微信收藏**：长图、PDF 和移动端 HTML 应适合被收藏，方便稍后阅读。
-- **二维码/短链接**：后续可提供临时预览链接，让用户在桌面生成后用微信扫码在手机打开。
-
-微信推荐输出优先级：
-
-1. **微信阅读 PDF**：当前最稳妥的分享格式，适合文件传输助手和聊天转发。
-2. **长图**：适合快速浏览、群聊传播和社交平台转发。
-3. **移动端 HTML**：适合最佳阅读体验，可作为 Web/PWA 的核心预览形态。
-4. **原始 Markdown**：适合技术用户二次编辑，不作为普通用户主要输出。
-
-微信适配要求：
-
-- 页面宽度、字号、行距按手机阅读优先设计。
-- 表格需要横向滚动或重新排版，避免在微信中挤压不可读。
-- 图片需要压缩和尺寸控制，避免传输过慢。
-- 导出文件名要短、可识别，适合在微信文件列表中查找。
-- 失败提示要明确告诉用户是格式不支持、文件过大、还是转换失败。
-
-### 飞书融合
-
-优先适配的飞书通路：
-
-- **飞书聊天/群组**：导出结果应便于直接发送到个人、群组和项目频道。
-- **飞书云文档**：后续支持将转换结果整理为适合粘贴或导入云文档的结构化内容。
-- **飞书文件**：PDF、HTML 包和长图应便于在飞书文件系统中预览、转发和归档。
-- **飞书多维表格/知识库**：后续可探索把转换结果或摘要沉淀到知识库、项目文档和资料库。
-- **飞书机器人/Webhook**：后期可支持转换完成通知、文件推送和团队自动化流程。
-
-飞书推荐输出优先级：
-
-1. **结构化 HTML/Markdown**：便于复制到飞书云文档并保留标题、列表、表格结构。
-2. **PDF**：适合正式分发、归档和跨团队传阅。
-3. **长图**：适合在群聊中快速预览和转发。
-4. **摘要/目录**：后续可作为飞书消息卡片或知识库入口。
-
-飞书适配要求：
-
-- 保持标题层级、列表、表格结构清晰，方便复制进飞书云文档。
-- 表格导出要兼顾可读性和可复制性。
-- 文件命名要适合团队归档，建议包含标题、日期和格式。
-- 后续 API 集成要从低权限能力起步，优先支持用户主动触发。
-- 团队协作功能必须明确权限边界，避免默认公开上传内容。
+- 统一入口已经可用：`scripts/any2screen.py`
+- 子命令分发逻辑位于 `src/a2s/`
+- `md2html` 是目前最完整、最适合直接使用的模块
+- `md2img` 仍是脚本型实现，输入输出路径写死在代码里，还不是标准 CLI
 
 ## 目录结构
 
 ```text
 Any2Screen/
-├── doc2md/
-│   └── doc2md.py
-├── md2html/
-│   ├── md2html.py
-│   ├── README.md
-│   └── requirements.txt
-├── md2img/
-│   └── md2img.py
-└── README.md
-```
-
-## 目标软件架构
-
-项目建议采用“核心转换引擎 + Web 应用 + 后续移动端”的分层架构。这样可以先把转换质量打磨稳定，再逐步扩展界面和平台。
-
-```text
-Any2Screen/
-├── apps/
-│   ├── web/                 # Web 前端：上传、预览、样式调整、导出
-│   └── ios/                 # 后期 iOS 客户端
-├── server/
-│   ├── api/                 # HTTP API：任务创建、状态查询、文件下载
-│   ├── workers/             # 转换任务执行器
-│   └── storage/             # 本地/对象存储适配
-├── packages/
-│   ├── converter-core/      # 通用转换管线
-│   ├── format-adapters/     # docx/pdf/txt/md/html/image 适配器
-│   └── templates/           # 移动端阅读模板和主题
-├── docs/                    # 架构、格式规范、产品文档
-└── scripts/                 # 迁移期脚本和实验工具
-```
-
-### 核心模块
-
-1. **Web 前端**
-   - 文件上传与格式识别。
-   - 转换参数配置，例如主题、页面宽度、字体大小、输出格式。
-   - 移动端预览视图。
-   - 导出 HTML、PDF、长图。
-   - 提供“阅后即焚 / 保存原文件 / 保存转换结果 / 转发分享”的明确操作区。
-
-2. **API 服务**
-   - 管理转换任务。
-   - 保存上传文件和导出结果。
-   - 返回任务状态、日志、错误信息和下载地址。
-   - 管理临时文件生命周期和自动清理策略。
-   - 拆分快速预览任务和完整导出任务，避免小操作被大任务阻塞。
-
-3. **转换核心**
-   - 将不同输入统一抽象为中间文档结构。
-   - 对标题、段落、表格、图片、代码块等内容做规范化。
-   - 输出移动端优化 HTML，再由渲染器生成 PDF 或长图。
-   - 对图片、扫描 PDF 等内容预留 OCR 接口。
-   - 支持分阶段转换：格式识别、元信息提取、首屏预览、完整转换、导出。
-
-4. **渲染与导出**
-   - HTML：自包含、响应式、适合浏览器直接打开。
-   - PDF：优先适配微信文件传输助手、聊天转发和收藏。
-   - 长图：适合微信群聊、朋友圈素材和移动端快速预览。
-   - 预览链接：后续支持二维码扫码，用微信内置浏览器打开。
-   - Markdown/结构化内容：优先保证可复制到飞书云文档。
-   - 通知推送：后续支持飞书机器人/Webhook 推送转换结果。
-
-5. **iOS 客户端（后期）**
-   - 文件导入、预览、分享。
-   - 优先复用 Web/API 能力。
-   - 只有在离线转换需求明确后，再考虑端侧转换能力。
-
-## 推荐技术路线
-
-个人独立开发阶段建议优先降低系统复杂度：
-
-- 前端：React + Vite，后续可演进为 PWA。
-- 后端：Python + FastAPI。
-- 转换执行：Python worker，同步接口起步，任务耗时变长后再引入队列。
-- 渲染：Playwright + Chromium。
-- 存储：本地文件系统起步，后续抽象到 S3/R2/OSS。
-- 性能策略：预览链路同步优先、完整导出后台化、重复文件缓存化。
-- 微信通路：先适配文件传输助手与微信内置浏览器，后续再考虑二维码短链和公众号/小程序能力。
-- 飞书通路：先适配聊天文件、云文档复制和浏览器预览，后续再考虑开放平台 API、机器人和 Webhook。
-- 移动端：先用响应式 Web/PWA 验证体验，再评估 SwiftUI iOS 客户端。
-
-## 开发计划
-
-详见 [DEVELOPMENT_PLAN.md](/home/zj/workspace/KMS/scripts/Any2Screen/DEVELOPMENT_PLAN.md)。
-
-## 当前脚本位置
-
-```text
-doc2md/
-└── doc2md.py
-
-md2html/
-├── md2html.py
 ├── README.md
-└── requirements.txt
-
-md2img/
-    └── md2img.py
+├── DEVELOPMENT_PLAN.md
+├── scripts/
+│   └── any2screen.py
+├── src/
+│   └── a2s/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── command_registry.py
+│       ├── doc2md.py
+│       ├── md2html.py
+│       └── md2img.py
+├── docs/
+│   ├── md2html.md
+│   └── md2html.requirements.txt
 ```
 
-## 环境要求
+说明：
 
-- Python 3.8+
-- Playwright（仅 `md2img.py` 和 `md2html.py --pdf/--wechat` 需要）
+- `scripts/any2screen.py` 是唯一统一入口
+- `src/a2s/` 是统一入口实际调用的模块实现
 
-安装示例（按需）：
+## 统一命令行
 
-```bash
-# md2html 基础依赖
-pip install -r md2html/requirements.txt
-
-# doc2md 依赖
-pip install python-docx PyPDF2
-
-# 如果要处理加密 docx
-pip install msoffcrypto-tool
-
-# 如果要导出 PDF 或使用 md2img
-pip install playwright
-playwright install chromium
-
-# 如果要使用 watch 模式
-pip install watchdog
-```
-
-## 快速使用
-
-### 1) doc2md：文档转 Markdown
-
-```bash
-# 单文件
-python3 doc2md/doc2md.py report.docx
-
-# 批量目录
-python3 doc2md/doc2md.py ./docs -o ./out
-
-# 加密 docx
-python3 doc2md/doc2md.py secret.docx -p "your-password" -o ./out
-```
-
-### 2) md2html：Markdown 转自包含 HTML（可选 PDF）
-
-```bash
-# 单文件
-python3 md2html/md2html.py README.md
-
-# 批量目录到指定输出目录
-python3 md2html/md2html.py ./notes -o ./exports
-
-# 同时导出 A4 PDF
-python3 md2html/md2html.py ./notes -o ./exports --pdf
-
-# 导出适合手机阅读的 WeChat PDF
-python3 md2html/md2html.py ./notes -o ./exports --wechat
-
-# 监听模式
-python3 md2html/md2html.py ./notes --watch -o ./exports
-```
-
-### 3) md2img：Markdown 转长图
-
-当前脚本内写死了输入输出路径（`INPUT` / `OUTPUT`），使用前先编辑 [md2img.py](/home/zj/workspace/KMS/scripts/Any2Screen/md2img/md2img.py) 顶部常量，再执行：
-
-```bash
-python3 md2img/md2img.py
-```
-
-## 已知限制
-
-- `doc2md.py`
-  - 主要做文本提取与基础标题映射，不保留复杂版式。
-  - 对 PDF 的结构化语义（表格、多栏）不做深度还原。
-- `md2img.py`
-  - 非参数化 CLI，复用性较弱。
-  - 样式目前内嵌在脚本里，定制需改代码。
-- `md2html.py`
-  - PDF 导出依赖本机 Chromium（Playwright 安装）。
-  - `--wechat` 模式为阅读优化，不保证所有阅读器表现完全一致。
-
-## 建议的下一步改进
-
-1. 为 `md2img.py` 增加 argparse 参数（输入、输出、宽度、主题），和 `doc2md/md2html` 风格统一。
-2. 在仓库根目录补充统一依赖文件（或 `pyproject.toml`），降低环境搭建成本。
-3. 增加最小回归样例（至少覆盖中英文、表格、代码块、超长文档）。
-=======
-`Any2Screen` 是一个统一入口的文档转换工具集，通过一个前导命令调用不同子模块。
-
-## 功能概览
-
-- `doc2md`：将常见文档转换为 Markdown（支持 `.docx`、`.pdf`、`.txt`）
-- `md2html`：将 Markdown 批量转换为自包含 HTML（可选导出 PDF）
-- `md2img`：将 Markdown 渲染为长图（当前实现为脚本内固定输入/输出路径）
-
-## 目录结构
-
-- `scripts/any2screen.py`：统一命令入口（前导路由）
-- `src/a2s/cli.py`：子命令分发层（不包含具体转换逻辑）
-- `src/a2s/command_registry.py`：子命令注册表（后续扩展在这里添加）
-- `src/a2s/*.py`：各模块具体实现
-
-## 命令行总用法
+总用法：
 
 ```bash
 python3 scripts/any2screen.py <module> [module_args...]
 ```
 
-- `<module>` 目前支持：`doc2md`、`md2html`、`md2img`
-- `[module_args...]` 会原样透传给对应模块
+当前支持的 `<module>`：
+
+- `doc2md`
+- `md2html`
+- `md2img`
 
 查看帮助：
 
@@ -442,70 +67,85 @@ python3 scripts/any2screen.py md2html --help
 
 ## 子命令说明
 
-### 1) doc2md
+### `doc2md`
 
-将文件或目录中的文档转换为 Markdown。
+将单个文件或目录中的文档转换为 Markdown。
 
 支持格式：
-- `.docx`（可配合密码解密，依赖 `msoffcrypto`）
+
+- `.docx`
 - `.pdf`
 - `.txt`
 
 参数：
-- `input`：输入文件或目录（必填）
+
+- `input`：输入文件或目录
 - `-o, --output`：输出目录，默认当前目录
-- `-p, --password`：加密 `.docx` 的密码（可选）
+- `-p, --password`：加密 `.docx` 的密码，可选
 
 示例：
 
 ```bash
-# 单文件
 python3 scripts/any2screen.py doc2md ./report.docx
-
-# 指定输出目录
 python3 scripts/any2screen.py doc2md ./report.pdf -o ./out
-
-# 目录批量转换 + 密码
 python3 scripts/any2screen.py doc2md ./docs -o ./out -p your_password
 ```
 
-### 2) md2html
+依赖：
 
-将一个或多个 Markdown 文件转换为自包含 HTML，可选生成 PDF。
+- `python-docx`
+- `PyPDF2`
+- `msoffcrypto-tool` 可选，仅加密 `.docx` 需要
+
+### `md2html`
+
+将一个或多个 Markdown 文件转换为自包含 HTML，可选同时生成 PDF。
 
 参数：
-- `paths`：一个或多个 `.md` 文件或目录（必填）
-- `-o, --output`：输出目录（默认与源文件同级）
-- `--inplace`：将 `.html` 写入 `.md` 同目录
-- `--pdf`：额外生成 A4 PDF（需 Playwright）
-- `--wechat`：额外生成适合微信阅读的 PDF（需 Playwright）
+
+- `paths`：一个或多个 `.md` 文件或目录
+- `-o, --output`：输出目录，默认与源文件同级
+- `--inplace`：将 `.html` 写到 `.md` 同目录
+- `--pdf`：额外生成 A4 PDF
+- `--wechat`：额外生成适合微信阅读的 PDF
 - `-v, --verbose`：详细输出
-- `--watch`：监听文件变化自动重建（需 watchdog）
+- `--watch`：监听变更并自动重建
 - `--quiet`：仅输出错误
 
 示例：
 
 ```bash
-# 单文件转 HTML
 python3 scripts/any2screen.py md2html ./README.md
-
-# 目录批量输出到指定目录
 python3 scripts/any2screen.py md2html ./notes -o ./exports
-
-# 生成 HTML + PDF
 python3 scripts/any2screen.py md2html ./trip.md --pdf
-
-# 监听模式
+python3 scripts/any2screen.py md2html ~/workspace/stok-mapping/tasks/cross-market/HK_A_SHARE_MAPPING_STRATEGIES.md --pdf
 python3 scripts/any2screen.py md2html ./notes --watch -o ./exports
 ```
 
-### 3) md2img
+依赖：
 
-将 Markdown 转为长图。
+- `markdown-it-py`
+- `mdit-py-plugins`
+- `linkify-it-py`
+- `playwright`，当使用 `--pdf` 或 `--wechat` 时需要
+- `watchdog`，当使用 `--watch` 时需要
 
-注意：当前版本没有公开命令行参数，输入/输出路径在脚本内部常量中定义：
-- 输入：`INPUT`
-- 输出：`OUTPUT`
+补充：
+
+- 该模块当前是仓库里最成熟的 CLI
+- 你已经实际验证过 `--help` 和 `--pdf` 路径可正常工作
+
+### `md2img`
+
+将 Markdown 渲染为长图。
+
+当前限制：
+
+- 没有标准命令行参数
+- 输入和输出路径写死在代码中
+- 统一入口只能触发脚本执行，不能在命令行里动态指定文件
+
+当前脚本中的固定路径定义在 [src/a2s/md2img.py](/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/md2img.py:6)。
 
 运行示例：
 
@@ -513,16 +153,23 @@ python3 scripts/any2screen.py md2html ./notes --watch -o ./exports
 python3 scripts/any2screen.py md2img
 ```
 
-## 依赖说明（按模块）
+依赖：
 
-- `doc2md`：`python-docx`、`PyPDF2`（可选 `msoffcrypto-tool`）
-- `md2html`：`markdown-it-py`、`mdit-py-plugins`、`linkify-it-py`（`--pdf/--wechat` 需 `playwright`）
-- `md2img`：`markdown-it-py`、`playwright`
+- `markdown-it-py`
+- `playwright`
 
 ## 扩展子命令
 
-新增模块时：
-1. 在 `src/a2s/` 新建模块脚本
-2. 在 `src/a2s/command_registry.py` 增加子命令到脚本路径的映射
-3. 即可通过 `python3 scripts/any2screen.py <new_module> ...` 调用
->>>>>>> weasyPrint
+统一入口本身不写任何具体转换逻辑，只负责路由。
+
+新增子命令时：
+
+1. 在 `src/a2s/` 添加模块脚本
+2. 在 [src/a2s/command_registry.py](/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/command_registry.py) 注册子命令与脚本路径
+3. 通过 `python3 scripts/any2screen.py <new_module> ...` 调用
+
+## 相关文档
+
+- `md2html` 的补充说明：`docs/md2html.md`
+- `md2html` 的依赖清单：`docs/md2html.requirements.txt`
+- 开发规划：`DEVELOPMENT_PLAN.md`
