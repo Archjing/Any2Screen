@@ -7,6 +7,7 @@
 
 
 Any2Screen 是一个文档转换工具集，目标是把常见图文内容转换成更适合移动端阅读、传输和分享的输出格式。
+[项目当前开发计划：.\DEVELOPMENT_PLAN.md](.\DEVELOPMENT_PLAN.md)
 
 当前仓库提供一个统一命令入口 `any2screen`，通过子命令调用主 pipeline 或独立阶段模块：
 
