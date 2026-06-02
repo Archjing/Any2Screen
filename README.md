@@ -223,7 +223,8 @@ This project is licensed under **CC BY-NC-SA 4.0**.
 <p align="center">你可以自由：</p>
 <p align="center">分享 — 以任何媒介或格式复制、再分发本素材</p>
 <p align="center">改编 — 对本素材进行混编、转换、二次创作</p>
-只要你遵守许可证条款，许可人就不能撤销这些自由</p>
+<p align="center">只要你遵守许可证条款，许可人就不能撤销这些自由</p>
+
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 </div>
