@@ -5,3 +5,4 @@ __pycache__/
 exports/
 .venv/
 *.egg-info/
+prompts/
