@@ -99,3 +99,60 @@ python3 scripts/any2screen.py html2screen intermediate.html --pdf --img
 5. 删除 `md2html`、`md2img` 这类格式绑定命名，避免后续继续混乱
 
 你现在这个想法比“把 md2html 和 md2img 合并成一个模块”更清晰：不是合并成大模块，而是拆成两个稳定阶段。当前未提交的 `md2html/md2img` 整合改动可以继续作为中间步骤，但下一步应该按这个架构拆分。
+
+## 2026-06-02：架构调整方案落地
+
+👤 用户：
+
+> any2screen可以用这种方式实现pipeline，any2html和html2any仍能独立使用
+
+👤 用户：
+
+> 我以为可以保留doc2md的设计，这个模块有价值
+
+🤖 助手：
+
+最终采用的命令结构：
+
+```bash
+python3 scripts/any2screen.py <subcommand> [params] [args]
+```
+
+当前保留 4 个子命令：
+
+- `convert`：主 pipeline，自动执行 `any2html -> html2screen`
+- `any2html`：独立预处理阶段，输入文档转 HTML 中间产物
+- `html2screen`：独立输出阶段，HTML 转 PDF / WeChat PDF / HTML / image
+- `doc2md`：独立保留，DOCX / PDF / TXT 转 Markdown
+
+实现结果：
+
+- 新增 `src/a2s/convert_cli.py`
+- 新增 `src/a2s/any2html_cli.py`
+- 新增 `src/a2s/html2screen_cli.py`
+- 新增 `src/a2s/pipeline.py`
+- 新增 `src/a2s/any2html/markdown.py`
+- 新增 `src/a2s/html2screen/renderers.py`
+- 删除旧的 `src/a2s/md2html.py`
+- 删除旧的 `src/a2s/md2img.py`
+- 保留 `src/a2s/doc2md.py`
+- 更新 `src/a2s/command_registry.py`，注册 `convert`、`any2html`、`html2screen`、`doc2md`
+- 将旧 `docs/md2html.md` 替换为 `docs/pipeline.md`
+- 将 `docs/md2html.requirements.txt` 重命名为 `docs/runtime.requirements.txt`
+
+验证过的命令：
+
+```bash
+python3 scripts/any2screen.py --help
+python3 scripts/any2screen.py doc2md --help
+python3 scripts/any2screen.py convert README.md --pdf -o /tmp/out
+python3 scripts/any2screen.py any2html README.md -o /tmp/stage
+python3 scripts/any2screen.py html2screen /tmp/stage/README.html --pdf -o /tmp/final
+python3 scripts/any2screen.py convert README.md --img --format jpeg --width 720 -o /tmp/out
+```
+
+Git 结果：
+
+- 本次架构落地提交：`5aec3ed reconstruct architecture, modulized`
+- 已推送到 `origin/main`
+- 推送后工作区状态：clean
