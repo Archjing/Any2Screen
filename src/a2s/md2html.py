@@ -3,11 +3,17 @@
 md2html — Batch Markdown -> Self-Contained HTML Converter
 
 Reads one or more .md files and produces beautiful, responsive, self-contained
-HTML files with embedded stylesheets. Zero external dependencies at render time.
+HTML files or PDFs. HTML output is the default unless PDF output is requested.
 
 Usage:
-  # Convert a single file
+  # Convert a single file to HTML
   python3 md2html.py README.md
+
+  # Convert a single file to PDF only
+  python3 md2html.py README.md --pdf
+
+  # Convert a single file to both HTML and PDF
+  python3 md2html.py README.md --html --pdf
 
   # Convert all .md files in a directory, output to another directory
   python3 md2html.py ~/notes/ -o ~/html_output/
@@ -27,6 +33,7 @@ Requires: Python 3.8+, markdown-it-py
 import argparse
 import re
 import sys
+import tempfile
 import time
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
@@ -515,8 +522,15 @@ def resolve_output_path(source: Path, output_dir: Path | None, inplace: bool) ->
     return source.with_suffix(".html")
 
 
-def process_file(source: Path, output_dir: Path | None, inplace: bool, verbose: bool, pdf_mode: str = "") -> bool:
-    """Convert a single .md file to .html (and optionally .pdf).
+def process_file(
+    source: Path,
+    output_dir: Path | None,
+    inplace: bool,
+    verbose: bool,
+    pdf_mode: str = "",
+    write_html: bool = True,
+) -> bool:
+    """Convert a single .md file to selected output format(s).
     pdf_mode: "" = no PDF, "a4" = standard A4, "wechat" = mobile-optimized.
     Returns True on success."""
     if not source.exists():
@@ -539,26 +553,47 @@ def process_file(source: Path, output_dir: Path | None, inplace: bool, verbose: 
         print(f"  ERROR: CONVERSION ERROR: {source}: {e}")
         return False
 
-    out_path = resolve_output_path(source, output_dir, inplace)
+    html_path = resolve_output_path(source, output_dir, inplace)
 
     # Create parent directories if needed
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    html_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        out_path.write_text(html, encoding="utf-8")
-        msg = f"  OK {source.name} -> {out_path.name}  ({len(html):,}B)"
+        outputs = []
+        render_source = html_path
+
+        if write_html:
+            html_path.write_text(html, encoding="utf-8")
+            outputs.append(f"{html_path.name} ({len(html):,}B)")
+
         if pdf_mode:
-            pdf_path = out_path.with_suffix(".pdf") if pdf_mode == "a4" else out_path.with_suffix(".wechat.pdf")
+            pdf_path = html_path.with_suffix(".pdf") if pdf_mode == "a4" else html_path.with_suffix(".wechat.pdf")
             wechat = (pdf_mode == "wechat")
-            if render_pdf(out_path, pdf_path, verbose, wechat=wechat):
-                pdf_size = pdf_path.stat().st_size
-                msg += f" + {pdf_path.name} ({pdf_size:,}B)"
-            else:
-                msg += " (PDF FAILED)"
+            if not write_html:
+                with tempfile.NamedTemporaryFile(
+                    "w",
+                    suffix=".html",
+                    encoding="utf-8",
+                    dir=html_path.parent,
+                    delete=False,
+                ) as tmp:
+                    tmp.write(html)
+                    render_source = Path(tmp.name)
+            try:
+                if render_pdf(render_source, pdf_path, verbose, wechat=wechat):
+                    pdf_size = pdf_path.stat().st_size
+                    outputs.append(f"{pdf_path.name} ({pdf_size:,}B)")
+                else:
+                    outputs.append("PDF FAILED")
+            finally:
+                if not write_html and render_source.exists():
+                    render_source.unlink()
+
+        msg = f"  OK {source.name} -> " + " + ".join(outputs)
         print(msg)
         return True
     except Exception as e:
-        print(f"  ERROR: WRITE ERROR: {out_path}: {e}")
+        print(f"  ERROR: WRITE ERROR: {html_path}: {e}")
         return False
 
 
@@ -691,7 +726,14 @@ def discover_md_files(paths: list[Path]) -> list[Path]:
 # ──────────────────────────────────────────────
 # Watch Mode
 # ──────────────────────────────────────────────
-def watch_and_build(watch_paths: list[Path], output_dir: Path | None, inplace: bool, verbose: bool, pdf_mode: str = ""):
+def watch_and_build(
+    watch_paths: list[Path],
+    output_dir: Path | None,
+    inplace: bool,
+    verbose: bool,
+    pdf_mode: str = "",
+    write_html: bool = True,
+):
     """Watch directories for .md changes and rebuild automatically."""
     try:
         from watchdog.observers import Observer
@@ -704,7 +746,7 @@ def watch_and_build(watch_paths: list[Path], output_dir: Path | None, inplace: b
     print("=== Initial Build ===")
     files = discover_md_files(watch_paths)
     for f in files:
-        process_file(f, output_dir, inplace, verbose, pdf_mode)
+        process_file(f, output_dir, inplace, verbose, pdf_mode, write_html)
     print(f"Watching {len(watch_paths)} path(s) for changes... (Ctrl+C to stop)")
 
     class MDHandler(FileSystemEventHandler):
@@ -715,8 +757,8 @@ def watch_and_build(watch_paths: list[Path], output_dir: Path | None, inplace: b
             if src.suffix.lower() in (".md", ".markdown"):
                 if verbose:
                     print(f"\n  CHANGED: Changed: {src.name}")
-                process_file(src, output_dir, inplace, verbose, pdf_mode)
-                print(f"  OK Rebuilt: {src.stem}.html")
+                process_file(src, output_dir, inplace, verbose, pdf_mode, write_html)
+                print(f"  OK Rebuilt: {src.name}")
 
     handler = MDHandler()
     observers = []
@@ -752,10 +794,12 @@ def main():
                         help="Output directory (default: alongside source)")
     parser.add_argument("--inplace", action="store_true",
                         help="Write .html next to each .md file (sibling)")
+    parser.add_argument("--html", action="store_true",
+                        help="Generate HTML output. Default unless --pdf or --wechat is used")
     parser.add_argument("--pdf", action="store_true",
-                        help="Also generate standard A4 PDF (requires playwright)")
+                        help="Generate standard A4 PDF output")
     parser.add_argument("--wechat", action="store_true",
-                        help="Also generate mobile-optimized PDF for WeChat reading")
+                        help="Generate mobile-optimized PDF output for WeChat reading")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Verbose output")
     parser.add_argument("--watch", action="store_true",
@@ -778,6 +822,7 @@ def main():
         pdf_mode = "a4"
     else:
         pdf_mode = ""
+    write_html = args.html or not pdf_mode
 
     files = discover_md_files(args.paths)
     if not files:
@@ -785,7 +830,7 @@ def main():
         sys.exit(0)
 
     if args.watch:
-        watch_and_build(args.paths, args.output, inplace, args.verbose and not args.quiet, pdf_mode)
+        watch_and_build(args.paths, args.output, inplace, args.verbose and not args.quiet, pdf_mode, write_html)
         return
 
     # Batch build
@@ -793,7 +838,7 @@ def main():
     failed = 0
     skipped = 0
     for f in files:
-        ok = process_file(f, args.output, inplace, args.verbose or not args.quiet, pdf_mode)
+        ok = process_file(f, args.output, inplace, args.verbose or not args.quiet, pdf_mode, write_html)
         if ok:
             success += 1
         else:
@@ -803,8 +848,12 @@ def main():
     if not args.quiet:
         print(f"\n{'='*40}")
         print(f"Done: {success}/{total} files converted")
-        if pdf_mode:
-            print("(HTML + PDF generated — send .pdf via WeChat for inline preview)")
+        if pdf_mode and write_html:
+            print("(HTML + PDF generated)")
+        elif pdf_mode:
+            print("(PDF generated)")
+        else:
+            print("(HTML generated)")
 
     if args.output:
         print(f"Output: {args.output.resolve()}")
