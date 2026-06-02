@@ -1,6 +1,6 @@
-
-<img src=".\img\image-20260602181032888.png" alt="发给我妈看！！" width="50%" align="center">
-
+<div align="center">
+<img src=".\img\image-20260602181032888.png" alt="发给我妈看！！" width="60%" align="center">
+</div>
 
 # Any2Screen
 
