@@ -207,13 +207,24 @@ python3 scripts/any2screen.py html2screen ./README.html --html --pdf --wechat --
 - pipeline 补充说明：`docs/pipeline.md`
 - 运行依赖清单：`docs/runtime.requirements.txt`
 - 开发规划：`DEVELOPMENT_PLAN.md`
-- 
+
+
 <div align="center">
 
 ## 📋 License
 
-This project is licensed under **CC BY-NC-SA 4.0**
+This project is licensed under **CC BY-NC-SA 4.0**.
+<p align="center">You are free to:</p>
+<p align="center">1. Share — copy and redistribute the material in any medium or format.</p>
+<p align="center">2. Adapt — remix, transform, and build upon the material.</p>
+<p align="center">The licensor cannot revoke these freedoms as long as you **follow the license terms**.</p>
 
+<p align="center">本项目采用 CC BY-NC-SA 4.0 许可证。</p>
+<p align="center">你可以自由：</p>
+<p align="center">分享 — 以任何媒介或格式复制、再分发本素材</p>
+<p align="center">改编 — 对本素材进行混编、转换、二次创作</p>
+只要你遵守许可证条款，许可人就不能撤销这些自由</p>
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 </div>
+  
