@@ -1,5 +1,5 @@
 
-<img src=".\img\image-20260602181032888.png" alt="发给我妈看！！" width="50%">
+<img src=".\img\image-20260602181032888.png" alt="发给我妈看！！" width="50%" align="center">
 
 
 # Any2Screen
