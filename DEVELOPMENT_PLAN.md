@@ -9,7 +9,7 @@
 - [~] D1：部分完成。已确定目录结构，`doc2md`、`convert`、`any2html`、`html2screen` 已位于 `src/a2s/`；已新增 `docs/` 和 `tests/`，测试样例文件尚未补齐。
 - [x] D2：已使用 `uv` 统一依赖管理，根目录补充 `pyproject.toml`，运行依赖集中声明。
 - [x] D3：已将图片输出整合到 `html2screen --img` 和主 pipeline `convert --img`，支持输入、输出、宽度、格式。
-- [ ] D4：建立样例文档集，覆盖 Markdown、TXT、DOCX、PDF、图片。
+- [x] D4：建立样例文档集，覆盖 Markdown、TXT、DOCX、PDF、图片。
 - [ ] D5：记录当前转换耗时，形成性能基线表。
 
 交付物：可重复运行的脚本入口、样例文件、性能基线。
