@@ -6,27 +6,28 @@
 
 目标：把当前脚本原型整理成可持续开发的项目。
 
-- [~] D1：部分完成。已确定目录结构，`doc2md`、`md2html`、`md2img` 已迁移到 `src/a2s/`，已新增 `docs/` 和 `tests/`；测试样例文件尚未补齐。
+- [~] D1：部分完成。已确定目录结构，`doc2md`、`convert`、`any2html`、`html2screen` 已位于 `src/a2s/`；已新增 `docs/` 和 `tests/`，测试样例文件尚未补齐。
 - [x] D2：已使用 `uv` 统一依赖管理，根目录补充 `pyproject.toml`，运行依赖集中声明。
-- [x] D3：已将 `md2img` 改造成参数化 CLI，支持输入、输出、宽度、格式。
+- [x] D3：已将图片输出整合到 `html2screen --img` 和主 pipeline `convert --img`，支持输入、输出、宽度、格式。
 - [ ] D4：建立样例文档集，覆盖 Markdown、TXT、DOCX、PDF、图片。
 - [ ] D5：记录当前转换耗时，形成性能基线表。
 
 交付物：可重复运行的脚本入口、样例文件、性能基线。
 
-## D6-D12：转换核心抽取
+## D6-D12：转换核心抽取与 pipeline 拆分
 
-目标：从脚本转向可复用的转换模块。
+目标：从脚本转向可复用的转换模块，并把 pipeline 拆成 `any2html` 与 `html2screen` 两个阶段。
 
-- [ ] D6：定义统一输入/输出接口。
-- [ ] D7：抽取 Markdown -> HTML 核心函数。
-- [ ] D8：抽取 DOCX/PDF/TXT -> Markdown 核心函数。
-- [ ] D9：抽取 HTML -> PDF/长图渲染接口。
+- [x] D6：已定义两阶段接口：`any2html` 负责将输入转为 HTML 中间产物，`html2screen` 负责将 HTML 输出为 A4 PDF、WeChat PDF、HTML、png/jpeg。
+- [x] D7：已抽取 Markdown -> HTML 核心函数到 `any2html/markdown.py`。
+- [x] D8：已建立 `any2html` 预处理模块边界，后续可接入 DOCX/PDF/TXT。
+- [x] D9：已抽取 HTML -> A4 PDF、WeChat PDF、长图渲染接口到 `html2screen/renderers.py`。
+- [x] D9a：保留 `doc2md` 作为独立文档到 Markdown 转换工具，后续可复用到 DOCX/PDF/TXT 的 `any2html` 接入。
 - [ ] D10：设计中间文档结构，覆盖标题、段落、列表、表格、图片、代码块。
 - [ ] D11：实现快速预览接口，只处理首屏、前几页或轻量 HTML。
 - [ ] D12：补充基础单元测试和转换结果快照。
 
-交付物：`converter-core` 雏形、快速预览接口、基础测试。
+交付物：`any2html`、`html2screen`、pipeline 雏形、快速预览接口、基础测试。
 
 ## D13-D20：Web MVP
 
