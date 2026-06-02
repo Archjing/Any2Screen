@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="md2html">
+<title>Any2Screen</title>
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --text: #1c1917;
+  --text-secondary: #57534e;
+  --border: #e7e5e4;
+  --accent: #0d9488;
+  --accent-light: #ccfbf1;
+  --accent-text: #ffffff;
+  --code-bg: #f5f5f4;
+  --code-text: #292524;
+  --hr-color: #e7e5e4;
+  --blockquote-border: #0d9488;
+  --blockquote-bg: #f0fdfa;
+  --table-stripe: #f5f5f4;
+  --table-hover: #ecfdf5;
+  --heading-border: #e7e5e4;
+  --kbd-bg: #f5f5f4;
+  --kbd-border: #d6d3d1;
+  --mark-bg: #fef3c7;
+  --img-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --link-color: #0d9488;
+  --link-hover: #0f766e;
+  --max-width: 820px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", "DejaVu Sans Mono", "Cascadia Code", Consolas, monospace;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1917;
+    --surface: #292524;
+    --text: #e7e5e4;
+    --text-secondary: #a8a29e;
+    --border: #44403c;
+    --accent: #14b8a6;
+    --accent-light: #134e4a;
+    --accent-text: #042f2e;
+    --code-bg: #44403c;
+    --code-text: #e7e5e4;
+    --hr-color: #44403c;
+    --blockquote-border: #14b8a6;
+    --blockquote-bg: #171717;
+    --table-stripe: #292524;
+    --table-hover: #1c1917;
+    --heading-border: #44403c;
+    --kbd-bg: #44403c;
+    --kbd-border: #57534e;
+    --mark-bg: #713f12;
+    --img-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    --link-color: #5eead4;
+    --link-hover: #99f6e4;
+  }
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.75;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+}
+
+/* ===== Container ===== */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+/* ===== Typography ===== */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 1.8em;
+  margin-bottom: 0.5em;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: 2em; border-bottom: 2px solid var(--heading-border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid var(--heading-border); padding-bottom: 0.25em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.1em; }
+h5 { font-size: 1em; }
+h6 { font-size: 0.875em; color: var(--text-secondary); }
+
+p { margin: 0.75em 0; }
+
+a { color: var(--link-color); text-decoration: none; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+
+strong { font-weight: 600; }
+em { font-style: italic; }
+
+/* ===== Blockquote ===== */
+blockquote {
+  border-left: 4px solid var(--blockquote-border);
+  background: var(--blockquote-bg);
+  padding: 0.75em 1em;
+  margin: 1em 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-secondary);
+}
+blockquote p:first-child { margin-top: 0; }
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ===== Code ===== */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 1em;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  line-height: 1.5;
+  margin: 1em 0;
+  tab-size: 2;
+}
+pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ===== Lists ===== */
+ul, ol { margin: 0.5em 0 0.5em 1.5em; padding: 0; }
+li { margin: 0.25em 0; }
+li > ul, li > ol { margin: 0.25em 0 0.25em 1.5em; }
+
+/* ===== Tables ===== */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 1em 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar styling for webkit */
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Vertical scroll for very tall tables */
+.table-wrapper.tall {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Sticky header when vertical scroll is on */
+.table-wrapper.tall thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375em;
+}
+
+thead { background: var(--accent); color: var(--accent-text); }
+th, td {
+  padding: 0.6em 0.8em;
+  text-align: left;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+th { font-weight: 600; letter-spacing: 0.01em; }
+tbody tr:nth-child(even) { background: var(--table-stripe); }
+tbody tr:hover { background: var(--table-hover); }
+
+/* ===== Horizontal Rule ===== */
+hr {
+  border: none;
+  border-top: 1px solid var(--hr-color);
+  margin: 2em 0;
+}
+
+/* ===== Images ===== */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--img-shadow);
+  display: block;
+  margin: 1em auto;
+}
+
+/* ===== KBD ===== */
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  border-radius: 4px;
+  padding: 0.15em 0.5em;
+  box-shadow: 0 1px 0 var(--kbd-border);
+}
+
+/* ===== Mark ===== */
+mark {
+  background: var(--mark-bg);
+  color: inherit;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+/* ===== Details / Summary ===== */
+details {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  background: var(--blockquote-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+summary {
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25em 0;
+}
+summary:hover { color: var(--accent); }
+
+/* ===== Task List (Github-Flavored) ===== */
+ul.task-list { list-style: none; margin-left: 0; }
+.task-list-item { display: flex; align-items: flex-start; gap: 0.5em; }
+.task-list-item input[type="checkbox"] {
+  margin-top: 0.35em;
+  accent-color: var(--accent);
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+/* ===== Footnotes ===== */
+.footnotes { margin-top: 2em; padding-top: 1em; border-top: 1px solid var(--border); font-size: 0.875em; color: var(--text-secondary); }
+.footnotes ol { margin-left: 1.5em; }
+.footnotes li { margin: 0.3em 0; }
+
+/* ===== Print ===== */
+@media print {
+  body { background: white; padding: 0; }
+  .container { box-shadow: none; border-radius: 0; padding: 0; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  body { padding: 0.75rem; }
+  .container { padding: 1rem 0.75rem; border-radius: var(--radius); }
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.25em; }
+  h3 { font-size: 1.1em; }
+  th, td { padding: 0.4em 0.5em; font-size: 0.875em; }
+  pre { font-size: 0.8em; }
+  th, td { padding: 0.4em 0.5em; font-size: 0.85em; }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  body { padding: 1.5rem; }
+  .container { padding: 1.5rem; }
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+<article>
+<h1>Any2Screen</h1>
+<p>Any2Screen 是一个文档转换工具集，目标是把常见图文内容转换成更适合移动端阅读、传输和分享的输出格式。</p>
+<p>当前仓库提供一个统一命令入口 <code>any2screen</code>，通过子命令调用 3 个模块：</p>
+<ul>
+<li><code>doc2md</code>：<code>docx/pdf/txt -&gt; markdown</code></li>
+<li><code>md2html</code>：<code>markdown -&gt; 自包含 html</code>，可选导出 PDF</li>
+<li><code>md2img</code>：<code>markdown -&gt; 长图</code></li>
+</ul>
+<h2>当前状态</h2>
+<p>当前代码更接近“转换能力原型”，不是完整应用。</p>
+<ul>
+<li>统一入口已经可用：<code>scripts/any2screen.py</code></li>
+<li>子命令分发逻辑位于 <code>src/a2s/</code></li>
+<li><code>md2html</code> 是目前最完整、最适合直接使用的模块</li>
+<li><code>md2img</code> 仍是脚本型实现，输入输出路径写死在代码里，还不是标准 CLI</li>
+</ul>
+<h2>目录结构</h2>
+<pre><code class="language-text">Any2Screen/
+├── README.md
+├── DEVELOPMENT_PLAN.md
+├── scripts/
+│   └── any2screen.py
+├── src/
+│   └── a2s/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── command_registry.py
+│       ├── doc2md.py
+│       ├── md2html.py
+│       └── md2img.py
+├── docs/
+│   ├── md2html.md
+│   └── md2html.requirements.txt
+</code></pre>
+<p>说明：</p>
+<ul>
+<li><code>scripts/any2screen.py</code> 是唯一统一入口</li>
+<li><code>src/a2s/</code> 是统一入口实际调用的模块实现</li>
+</ul>
+<h2>统一命令行</h2>
+<p>总用法：</p>
+<pre><code class="language-bash">python3 scripts/any2screen.py &lt;module&gt; [module_args...]
+</code></pre>
+<p>当前支持的 <code>&lt;module&gt;</code>：</p>
+<ul>
+<li><code>doc2md</code></li>
+<li><code>md2html</code></li>
+<li><code>md2img</code></li>
+</ul>
+<p>查看帮助：</p>
+<pre><code class="language-bash">python3 scripts/any2screen.py --help
+python3 scripts/any2screen.py doc2md --help
+python3 scripts/any2screen.py md2html --help
+</code></pre>
+<h2>子命令说明</h2>
+<h3><code>doc2md</code></h3>
+<p>将单个文件或目录中的文档转换为 Markdown。</p>
+<p>支持格式：</p>
+<ul>
+<li><code>.docx</code></li>
+<li><code>.pdf</code></li>
+<li><code>.txt</code></li>
+</ul>
+<p>参数：</p>
+<ul>
+<li><code>input</code>：输入文件或目录</li>
+<li><code>-o, --output</code>：输出目录，默认当前目录</li>
+<li><code>-p, --password</code>：加密 <code>.docx</code> 的密码，可选</li>
+</ul>
+<p>示例：</p>
+<pre><code class="language-bash">python3 scripts/any2screen.py doc2md ./report.docx
+python3 scripts/any2screen.py doc2md ./report.pdf -o ./out
+python3 scripts/any2screen.py doc2md ./docs -o ./out -p your_password
+</code></pre>
+<p>依赖：</p>
+<ul>
+<li><code>python-docx</code></li>
+<li><code>PyPDF2</code></li>
+<li><code>msoffcrypto-tool</code> 可选，仅加密 <code>.docx</code> 需要</li>
+</ul>
+<h3><code>md2html</code></h3>
+<p>将一个或多个 Markdown 文件转换为自包含 HTML，可选同时生成 PDF。</p>
+<p>参数：</p>
+<ul>
+<li><code>paths</code>：一个或多个 <code>.md</code> 文件或目录</li>
+<li><code>-o, --output</code>：输出目录，默认与源文件同级</li>
+<li><code>--inplace</code>：将 <code>.html</code> 写到 <code>.md</code> 同目录</li>
+<li><code>--pdf</code>：额外生成 A4 PDF</li>
+<li><code>--wechat</code>：额外生成适合微信阅读的 PDF</li>
+<li><code>-v, --verbose</code>：详细输出</li>
+<li><code>--watch</code>：监听变更并自动重建</li>
+<li><code>--quiet</code>：仅输出错误</li>
+</ul>
+<p>示例：</p>
+<pre><code class="language-bash">python3 scripts/any2screen.py md2html ./README.md
+python3 scripts/any2screen.py md2html ./notes -o ./exports
+python3 scripts/any2screen.py md2html ./trip.md --pdf
+python3 scripts/any2screen.py md2html ~/workspace/stok-mapping/tasks/cross-market/HK_A_SHARE_MAPPING_STRATEGIES.md --pdf
+python3 scripts/any2screen.py md2html ./notes --watch -o ./exports
+</code></pre>
+<p>依赖：</p>
+<ul>
+<li><code>markdown-it-py</code></li>
+<li><code>mdit-py-plugins</code></li>
+<li><code>linkify-it-py</code></li>
+<li><code>playwright</code>，当使用 <code>--pdf</code> 或 <code>--wechat</code> 时需要</li>
+<li><code>watchdog</code>，当使用 <code>--watch</code> 时需要</li>
+</ul>
+<p>补充：</p>
+<ul>
+<li>该模块当前是仓库里最成熟的 CLI</li>
+<li>你已经实际验证过 <code>--help</code> 和 <code>--pdf</code> 路径可正常工作</li>
+</ul>
+<h3><code>md2img</code></h3>
+<p>将 Markdown 渲染为长图。</p>
+<p>当前限制：</p>
+<ul>
+<li>没有标准命令行参数</li>
+<li>输入和输出路径写死在代码中</li>
+<li>统一入口只能触发脚本执行，不能在命令行里动态指定文件</li>
+</ul>
+<p>当前脚本中的固定路径定义在 <a href="/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/md2img.py:6">src/a2s/md2img.py</a>。</p>
+<p>运行示例：</p>
+<pre><code class="language-bash">python3 scripts/any2screen.py md2img
+</code></pre>
+<p>依赖：</p>
+<ul>
+<li><code>markdown-it-py</code></li>
+<li><code>playwright</code></li>
+</ul>
+<h2>扩展子命令</h2>
+<p>统一入口本身不写任何具体转换逻辑，只负责路由。</p>
+<p>新增子命令时：</p>
+<ol>
+<li>在 <code>src/a2s/</code> 添加模块脚本</li>
+<li>在 <a href="/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/command_registry.py">src/a2s/command_registry.py</a> 注册子命令与脚本路径</li>
+<li>通过 <code>python3 scripts/any2screen.py &lt;new_module&gt; ...</code> 调用</li>
+</ol>
+<h2>相关文档</h2>
+<ul>
+<li><code>md2html</code> 的补充说明：<code>docs/md2html.md</code></li>
+<li><code>md2html</code> 的依赖清单：<code>docs/md2html.requirements.txt</code></li>
+<li>开发规划：<code>DEVELOPMENT_PLAN.md</code></li>
+</ul>
+
+</article>
+<footer style="margin-top:3em;padding-top:1em;border-top:1px solid var(--border);font-size:0.8em;color:var(--text-secondary);text-align:center;">
+  Generated by <strong>md2html</strong>
+  &mdash; README.md
+</footer>
+</div>
+</body>
+</html>
