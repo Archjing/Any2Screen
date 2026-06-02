@@ -6,9 +6,9 @@
 
 目标：把当前脚本原型整理成可持续开发的项目。
 
-- [ ] D1：确定目录结构，保留现有 `doc2md`、`md2html`、`md2img`，新增 `docs/` 和测试样例目录。
-- [ ] D2：统一依赖管理，补充根目录 `requirements.txt` 或 `pyproject.toml`。
-- [ ] D3：将 `md2img` 改造成参数化 CLI，支持输入、输出、宽度、格式。
+- [~] D1：部分完成。已确定目录结构，`doc2md`、`md2html`、`md2img` 已迁移到 `src/a2s/`，已新增 `docs/` 和 `tests/`；测试样例文件尚未补齐。
+- [x] D2：已使用 `uv` 统一依赖管理，根目录补充 `pyproject.toml`，运行依赖集中声明。
+- [x] D3：已将 `md2img` 改造成参数化 CLI，支持输入、输出、宽度、格式。
 - [ ] D4：建立样例文档集，覆盖 Markdown、TXT、DOCX、PDF、图片。
 - [ ] D5：记录当前转换耗时，形成性能基线表。
 
