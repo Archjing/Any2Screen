@@ -23,9 +23,9 @@
 - [x] D8：已建立 `any2html` 预处理模块边界，后续可接入 DOCX/PDF/TXT。
 - [x] D9：已抽取 HTML -> A4 PDF、WeChat PDF、长图渲染接口到 `html2screen/renderers.py`。
 - [x] D9a：保留 `doc2md` 作为独立文档到 Markdown 转换工具，后续可复用到 DOCX/PDF/TXT 的 `any2html` 接入。
-- [ ] D10：设计中间文档结构，覆盖标题、段落、列表、表格、图片、代码块。
+- [x] D10：已设计中间文档结构，覆盖标题、段落、列表、表格、图片、代码块，并记录在 `docs/intermediate-document.md`。
 - [ ] D11：实现快速预览接口，只处理首屏、前几页或轻量 HTML。
-- [ ] D12：补充基础单元测试和转换结果快照。
+- [~] D12：已补充基础单元测试，覆盖 Markdown HTML 生成、表格包装、语言检测、CLI 输入发现和输出路径规则；转换结果快照尚未补齐。
 
 交付物：`any2html`、`html2screen`、pipeline 雏形、快速预览接口、基础测试。
 

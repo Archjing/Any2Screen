@@ -262,9 +262,16 @@ python3 scripts/any2screen.py html2screen ./README.html --html --pdf --wechat --
 2. 在 [src/a2s/command_registry.py](/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/command_registry.py) 注册子命令与脚本路径
 3. 通过 `python3 scripts/any2screen.py <new_module> ...` 调用
 
+## 测试
+
+```bash
+python3 -m unittest discover -s tests
+```
+
 ## 相关文档
 
 - pipeline 补充说明：`docs/pipeline.md`
+- 中间文档结构设计：`docs/intermediate-document.md`
 - 运行依赖清单：`docs/runtime.requirements.txt`
 - 开发规划：`DEVELOPMENT_PLAN.md`
 
