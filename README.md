@@ -66,23 +66,74 @@ Any2Screen/
 - `src/a2s/pipeline.py` 负责串接 `any2html -> html2screen`
 - 项目依赖由 `uv` 管理，声明在 `pyproject.toml`，锁定在 `uv.lock`
 
-## 依赖安装
+## 快速上手
 
-```bash
-uv sync
+项目需要 Python 3.10 及以上。
+
+### Windows
+
+先在 PowerShell 中克隆仓库：
+
+```powershell
+git clone https://github.com/Archjing/Any2Screen.git
+cd Any2Screen
 ```
 
-使用 `uv` 入口：
+如果已经安装 `uv`：
 
-```bash
-uv run any2screen --help
+```powershell
+uv sync
 uv run any2screen convert README.md --pdf
 ```
 
-继续使用脚本入口也可以：
+如果没有 `uv`，使用 `pip`：
+
+```powershell
+py -m pip install -e .
+py scripts/any2screen.py convert README.md --pdf
+```
+
+### macOS / Linux
+
+先在终端中克隆仓库：
 
 ```bash
-python3 scripts/any2screen.py --help
+git clone https://github.com/Archjing/Any2Screen.git
+cd Any2Screen
+```
+
+如果已经安装 `uv`：
+
+```bash
+uv sync
+uv run any2screen convert README.md --pdf
+```
+
+如果没有 `uv`，使用 `pip`：
+
+```bash
+python3 -m pip install -e .
+python3 scripts/any2screen.py convert README.md --pdf
+```
+
+默认会在输入文件同级目录生成输出文件。要导出长图，首次使用前还需要安装 Chromium。
+
+使用 `uv`：
+
+```bash
+uv run playwright install chromium
+```
+
+没有使用 `uv` 时：
+
+```bash
+python3 -m playwright install chromium
+```
+
+Windows：
+
+```powershell
+py -m playwright install chromium
 ```
 
 ## 统一命令行
@@ -237,4 +288,3 @@ This project is licensed under **CC BY-NC-SA 4.0**.
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 </div>
-
