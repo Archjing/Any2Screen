@@ -34,7 +34,8 @@
 目标：完成最小可用 Web 应用。
 
 - [x] D13：已搭建 Web 前端和 FastAPI 服务骨架，提供 `web` 子命令、移动优先 Web shell、`/api/health`、`/api/version` 和 OpenAPI。
-- [ ] D14：实现单文件上传和格式识别。
+- [x] D14：已实现单文件上传和格式识别，提供 `POST /api/files`，返回 `file_id`、文件大小、扩展名、识别类型和支持状态。
+- [x] D14.1：已实现鼠标拖拽上传文件，拖放后复用同一个 `POST /api/files` 上传链路。
 - [ ] D15：实现 Markdown/TXT 预览。
 - [ ] D16：实现 DOCX/PDF 预览。
 - [ ] D17：实现移动端阅读视图和基础主题。

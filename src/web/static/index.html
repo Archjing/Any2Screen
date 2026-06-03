@@ -26,6 +26,22 @@
       </div>
     </section>
 
+    <section class="upload-surface" aria-labelledby="upload-title">
+      <div>
+        <span class="step">D14</span>
+        <h2 id="upload-title">Upload a document</h2>
+        <p>选择一个文件，服务端会返回统一的 file_id 和格式识别结果。</p>
+      </div>
+      <form id="upload-form" class="upload-form">
+        <label id="drop-zone" class="file-picker">
+          <input id="file-input" type="file" name="file" accept=".md,.markdown,.txt,.docx,.pdf,.html,.htm,.png,.jpg,.jpeg,.webp">
+          <span id="file-label">Select or drop file</span>
+        </label>
+        <button type="submit">Upload</button>
+      </form>
+      <div id="upload-result" class="upload-result" aria-live="polite"></div>
+    </section>
+
     <section class="workflow">
       <article>
         <span class="step">01</span>

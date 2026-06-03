@@ -16,3 +16,12 @@ class VersionResponse(ApiModel):
     name: str
     api_version: str
     capabilities: list[str]
+
+
+class FileUploadResponse(ApiModel):
+    file_id: str
+    filename: str
+    size_bytes: int
+    extension: str
+    detected_type: str
+    supported: bool

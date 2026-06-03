@@ -308,8 +308,15 @@ python3 scripts/any2screen.py web
 - API 根路径：`http://127.0.0.1:8000/api`
 - Web 页面：`http://127.0.0.1:8000/`
 - 健康检查：`http://127.0.0.1:8000/api/health`
+- 文件上传：`POST http://127.0.0.1:8000/api/files`
 - OpenAPI：`http://127.0.0.1:8000/openapi.json`
 - Swagger UI：`http://127.0.0.1:8000/docs`
+
+上传接口示例：
+
+```bash
+curl -F file=@README.md http://127.0.0.1:8000/api/files
+```
 
 ## 扩展子命令
 

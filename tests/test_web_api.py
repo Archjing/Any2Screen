@@ -19,6 +19,7 @@ class WebApiTests(unittest.TestCase):
         paths = {route.path for route in app.routes}
 
         self.assertIn("/", paths)
+        self.assertIn("/api/files", paths)
         self.assertIn("/api/health", paths)
         self.assertIn("/api/version", paths)
         self.assertEqual(app.title, "Any2Screen API")
@@ -46,7 +47,30 @@ class WebApiTests(unittest.TestCase):
 
         self.assertEqual(payload["name"], "any2screen")
         self.assertEqual(payload["api_version"], "0.1.0")
+        self.assertIn("upload", payload["capabilities"])
         self.assertIn("preview", payload["capabilities"])
+
+    def test_file_registry_detects_supported_markdown_upload(self) -> None:
+        from web.files import FileRegistry
+
+        registry = FileRegistry()
+        record = registry.add("report.md", b"# Report")
+
+        self.assertEqual(record.filename, "report.md")
+        self.assertEqual(record.size_bytes, 8)
+        self.assertEqual(record.extension, ".md")
+        self.assertEqual(record.detected_type, "markdown")
+        self.assertTrue(record.supported)
+        self.assertIs(registry.get(record.file_id), record)
+
+    def test_file_registry_marks_unknown_uploads(self) -> None:
+        from web.files import FileRegistry
+
+        registry = FileRegistry()
+        record = registry.add("archive.zip", b"PK")
+
+        self.assertEqual(record.detected_type, "unknown")
+        self.assertFalse(record.supported)
 
 
 if __name__ == "__main__":
