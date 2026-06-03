@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 
 from tests import _paths  # noqa: F401
-from a2s.any2html_cli import discover_input_files, resolve_output_path
-from a2s.convert_cli import discover_input_files as discover_convert_inputs
-from a2s.html2screen_cli import discover_html_files, resolve_output_path as resolve_html_output_path
+from any2html_cli import discover_input_files, resolve_output_path
+from convert_cli import discover_input_files as discover_convert_inputs
+from html2screen_cli import discover_html_files, resolve_output_path as resolve_html_output_path
 
 
 class CliHelperTests(unittest.TestCase):

@@ -8,4 +8,4 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
-runpy.run_module("a2s.cli", run_name="__main__")
+runpy.run_module("cli", run_name="__main__")

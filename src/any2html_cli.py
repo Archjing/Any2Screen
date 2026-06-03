@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import sys
 
-from a2s.any2html import generate_html
+from any2html import generate_html
 
 
 def discover_input_files(paths: list[Path]) -> list[Path]:

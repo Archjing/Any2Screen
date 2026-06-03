@@ -20,12 +20,30 @@ dependencies = [
 watch = [
     "watchdog>=4.0.0",
 ]
+web = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+]
 
 [project.scripts]
-any2screen = "a2s.cli:main"
+any2screen = "cli:main"
 
 [tool.uv]
 package = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools]
+py-modules = [
+    "any2html_cli",
+    "cli",
+    "command_registry",
+    "convert_cli",
+    "doc2md",
+    "html2screen_cli",
+    "pipeline",
+    "preview",
+    "preview_cli",
+    "web_cli",
+]

@@ -136,7 +136,7 @@ Block =
 
 ## Implementation Steps
 
-1. 在 `src/a2s/any2html/document.py` 添加 dataclass。
+1. 在 `src/any2html/document.py` 添加 dataclass。
 2. 增加 `render_document_to_html(document)`，复用现有 HTML 模板和样式。
 3. 增加 Markdown 到 `IntermediateDocument` 的解析适配，不替换当前 `generate_html()`。
 4. 为 `IntermediateDocument` 到 HTML 增加单元测试和快照样例。

@@ -6,7 +6,7 @@
 
 目标：把当前脚本原型整理成可持续开发的项目。
 
-- [~] D1：部分完成。已确定目录结构，`doc2md`、`convert`、`any2html`、`html2screen` 已位于 `src/a2s/`；已新增 `docs/` 和 `tests/`，测试样例文件尚未补齐。
+- [~] D1：部分完成。已确定目录结构，`doc2md`、`convert`、`any2html`、`html2screen` 已位于 `src/`；已新增 `docs/` 和 `tests/`，测试样例文件尚未补齐。
 - [x] D2：已使用 `uv` 统一依赖管理，根目录补充 `pyproject.toml`，运行依赖集中声明。
 - [x] D3：已将图片输出整合到 `html2screen --img` 和主 pipeline `convert --img`，支持输入、输出、宽度、格式。
 - [x] D4：建立样例文档集，覆盖 Markdown、TXT、DOCX、PDF、图片。
@@ -24,7 +24,7 @@
 - [x] D9：已抽取 HTML -> A4 PDF、WeChat PDF、长图渲染接口到 `html2screen/renderers.py`。
 - [x] D9a：保留 `doc2md` 作为独立文档到 Markdown 转换工具，后续可复用到 DOCX/PDF/TXT 的 `any2html` 接入。
 - [x] D10：已设计中间文档结构，覆盖标题、段落、列表、表格、图片、代码块，并记录在 `docs/intermediate-document.md`。
-- [ ] D11：实现快速预览接口，只处理首屏、前几页或轻量 HTML。
+- [x] D11：已实现快速预览接口和 `preview` 子命令，支持按 Markdown 块数生成轻量 HTML，并限制表格行数和代码块行数。
 - [~] D12：已补充基础单元测试，覆盖 Markdown HTML 生成、表格包装、语言检测、CLI 输入发现和输出路径规则；转换结果快照尚未补齐。
 
 交付物：`any2html`、`html2screen`、pipeline 雏形、快速预览接口、基础测试。
@@ -33,7 +33,7 @@
 
 目标：完成最小可用 Web 应用。
 
-- [ ] D13：搭建 Web 前端和 FastAPI 服务骨架。
+- [~] D13：已搭建 FastAPI 服务骨架，提供 `web` 子命令、`/api/health`、`/api/version` 和 OpenAPI；Web 前端骨架尚未补齐。
 - [ ] D14：实现单文件上传和格式识别。
 - [ ] D15：实现 Markdown/TXT 预览。
 - [ ] D16：实现 DOCX/PDF 预览。

@@ -23,7 +23,7 @@ Any2Screen 是一个文档转换工具集，目标是把常见图文内容转换
 当前代码更接近“转换能力原型”，不是完整应用。
 
 - 统一入口已经可用：`scripts/any2screen.py`
-- 子命令分发逻辑位于 `src/a2s/`
+- 子命令分发逻辑位于 `src/`
 - `convert` 作为主 CLI pipeline，内部执行 `any2html -> html2screen`
 - `any2html` 和 `html2screen` 可独立调用，便于调试、复用和后续扩展
 - `doc2md` 作为独立转换工具保留，后续可作为 DOCX/PDF/TXT 接入 `any2html` 的基础
@@ -39,19 +39,24 @@ Any2Screen/
 ├── scripts/
 │   └── any2screen.py
 ├── src/
-│   └── a2s/
-│       ├── __init__.py
-│       ├── cli.py
-│       ├── command_registry.py
-│       ├── convert_cli.py
-│       ├── any2html_cli.py
-│       ├── html2screen_cli.py
-│       ├── doc2md.py
-│       ├── pipeline.py
-│       ├── any2html/
-│       │   └── markdown.py
-│       └── html2screen/
-│           └── renderers.py
+│   ├── cli.py
+│   ├── command_registry.py
+│   ├── convert_cli.py
+│   ├── any2html_cli.py
+│   ├── html2screen_cli.py
+│   ├── preview_cli.py
+│   ├── web_cli.py
+│   ├── doc2md.py
+│   ├── pipeline.py
+│   ├── preview.py
+│   ├── any2html/
+│   │   └── markdown.py
+│   ├── html2screen/
+│   │   └── renderers.py
+│   └── web/
+│       ├── app.py
+│       ├── routes.py
+│       └── schemas.py
 ├── docs/
 │   ├── pipeline.md
 │   └── runtime.requirements.txt
@@ -60,10 +65,10 @@ Any2Screen/
 说明：
 
 - `scripts/any2screen.py` 是唯一统一入口
-- `src/a2s/` 是统一入口实际调用的模块实现
-- `src/a2s/any2html/` 负责把输入文档转换为 HTML 中间产物
-- `src/a2s/html2screen/` 负责把 HTML 输出为 A4 PDF、WeChat PDF、长图等屏幕友好格式
-- `src/a2s/pipeline.py` 负责串接 `any2html -> html2screen`
+- `src/` 是统一入口实际调用的模块实现
+- `src/any2html/` 负责把输入文档转换为 HTML 中间产物
+- `src/html2screen/` 负责把 HTML 输出为 A4 PDF、WeChat PDF、长图等屏幕友好格式
+- `src/pipeline.py` 负责串接 `any2html -> html2screen`
 - 项目依赖由 `uv` 管理，声明在 `pyproject.toml`，锁定在 `uv.lock`
 
 ## 快速上手
@@ -149,6 +154,8 @@ python3 scripts/any2screen.py <module> [module_args...]
 - `convert`
 - `any2html`
 - `html2screen`
+- `preview`
+- `web`
 - `doc2md`
 
 查看帮助：
@@ -158,6 +165,8 @@ python3 scripts/any2screen.py --help
 python3 scripts/any2screen.py convert --help
 python3 scripts/any2screen.py any2html --help
 python3 scripts/any2screen.py html2screen --help
+python3 scripts/any2screen.py preview --help
+python3 scripts/any2screen.py web --help
 python3 scripts/any2screen.py doc2md --help
 ```
 
@@ -252,14 +261,63 @@ python3 scripts/any2screen.py html2screen ./README.html --img --width 960 --form
 python3 scripts/any2screen.py html2screen ./README.html --html --pdf --wechat --img -o ./exports
 ```
 
+### `preview`
+
+生成轻量 HTML 预览，只处理 Markdown 的前若干个内容块，适合后续 Web 首屏预览。
+
+参数：
+
+- `paths`：一个或多个 `.md` 文件或目录
+- `-o, --output`：输出 HTML 文件或目录，默认与源文件同级
+- `--blocks`：最多保留的 Markdown 块数，默认 `20`
+- `--table-rows`：每个表格最多保留的数据行数，默认 `20`
+- `--code-lines`：每个代码块最多保留的行数，默认 `120`
+
+示例：
+
+```bash
+python3 scripts/any2screen.py preview ./README.md
+python3 scripts/any2screen.py preview ./README.md --blocks 12
+python3 scripts/any2screen.py preview ./notes -o ./previews
+```
+
+### `web`
+
+启动 API-first 的 FastAPI 开发服务。
+
+先安装 Web 额外依赖：
+
+```bash
+uv sync --extra web
+```
+
+没有使用 `uv` 时：
+
+```bash
+python3 -m pip install -e ".[web]"
+```
+
+启动服务：
+
+```bash
+python3 scripts/any2screen.py web
+```
+
+默认地址：
+
+- API 根路径：`http://127.0.0.1:8000/api`
+- 健康检查：`http://127.0.0.1:8000/api/health`
+- OpenAPI：`http://127.0.0.1:8000/openapi.json`
+- Swagger UI：`http://127.0.0.1:8000/docs`
+
 ## 扩展子命令
 
 统一入口本身不写任何具体转换逻辑，只负责路由。
 
 新增子命令时：
 
-1. 在 `src/a2s/` 添加模块脚本
-2. 在 [src/a2s/command_registry.py](/home/zj/workspace/KMS/scripts/Any2Screen/src/a2s/command_registry.py) 注册子命令与脚本路径
+1. 在 `src/` 添加模块脚本
+2. 在 [src/command_registry.py](/home/zj/workspace/KMS/scripts/Any2Screen/src/command_registry.py) 注册子命令与脚本路径
 3. 通过 `python3 scripts/any2screen.py <new_module> ...` 调用
 
 ## 测试

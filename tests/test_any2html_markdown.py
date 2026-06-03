@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from tests import _paths  # noqa: F401
-from a2s.any2html.markdown import (
+from any2html.markdown import (
     convert_md_to_html,
     detect_lang,
     extract_title,

@@ -41,6 +41,21 @@ python3 scripts/any2screen.py html2screen README.html --img --width 960 --format
 python3 scripts/any2screen.py html2screen README.html --html --pdf --wechat --img -o exports/
 ```
 
+`preview` 生成轻量 HTML 预览，只处理 Markdown 的前若干个内容块：
+
+```bash
+python3 scripts/any2screen.py preview README.md
+python3 scripts/any2screen.py preview README.md --blocks 12
+python3 scripts/any2screen.py preview notes/ -o previews/
+```
+
+`web` 启动 API-first 的 FastAPI 开发服务：
+
+```bash
+python3 scripts/any2screen.py web
+python3 scripts/any2screen.py web --host 0.0.0.0 --port 8080
+```
+
 ## Output Rules
 
 - No output flag: HTML only.

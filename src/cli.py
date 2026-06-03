@@ -2,7 +2,7 @@
 import argparse
 import runpy
 import sys
-from a2s.command_registry import COMMAND_SCRIPTS
+from command_registry import COMMAND_SCRIPTS
 
 
 def main() -> int:

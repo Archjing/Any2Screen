@@ -3,8 +3,8 @@ import argparse
 from pathlib import Path
 import tempfile
 
-from a2s.any2html import generate_html
-from a2s.html2screen_cli import process_file as html2screen_process_file
+from any2html import generate_html
+from html2screen_cli import process_file as html2screen_process_file
 
 
 def discover_input_files(paths: list[Path]) -> list[Path]:

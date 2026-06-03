@@ -3,7 +3,7 @@ import argparse
 import shutil
 from pathlib import Path
 
-from a2s.html2screen import render_image, render_pdf
+from html2screen import render_image, render_pdf
 
 
 def discover_html_files(paths: list[Path]) -> list[Path]:

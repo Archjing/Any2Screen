@@ -1,8 +1,8 @@
 import tempfile
 from pathlib import Path
 
-from a2s.any2html import generate_html
-from a2s.html2screen import render_image, render_pdf
+from any2html import generate_html
+from html2screen import render_image, render_pdf
 
 
 def resolve_output_path(source: Path, output_dir: Path | None, inplace: bool) -> Path:
