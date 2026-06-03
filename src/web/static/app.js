@@ -27,6 +27,12 @@ function bindUploadForm() {
   const label = document.querySelector("#file-label");
   const dropZone = document.querySelector("#drop-zone");
   const result = document.querySelector("#upload-result");
+  const previewStatus = document.querySelector("#preview-status");
+  const previewFrame = document.querySelector("#preview-frame");
+
+  function clearPreview() {
+    previewFrame.removeAttribute("src");
+  }
 
   function setSelectedFile(file) {
     if (!file) {
@@ -70,10 +76,15 @@ function bindUploadForm() {
       result.textContent = "请选择一个文件。";
       return;
     }
+    uploadFile(file);
+  });
 
+  async function uploadFile(file) {
     const data = new FormData();
     data.append("file", file);
     result.textContent = "Uploading...";
+    previewStatus.textContent = "等待上传结果。";
+    clearPreview();
 
     try {
       const response = await fetch("/api/files", {
@@ -93,10 +104,35 @@ function bindUploadForm() {
           <div><dt>supported</dt><dd>${payload.supported ? "yes" : "no"}</dd></div>
         </dl>
       `;
+      await loadPreview(payload);
     } catch (error) {
       result.textContent = "上传失败，请稍后重试。";
+      previewStatus.textContent = "预览不可用。";
     }
-  });
+  }
+
+  async function loadPreview(file) {
+    if (!["markdown", "text"].includes(file.detected_type)) {
+      previewStatus.textContent = "当前只支持 Markdown 和 TXT 预览。";
+      return;
+    }
+
+    previewStatus.textContent = "Generating preview...";
+    try {
+      const response = await fetch(`/api/previews/${file.file_id}?blocks=20`);
+      if (!response.ok) {
+        throw new Error("Preview failed");
+      }
+      const preview = await response.json();
+      clearPreview();
+      previewFrame.src = `/api/previews/${file.file_id}/html?blocks=20`;
+      previewStatus.textContent = preview.truncated
+        ? `已显示 ${preview.included_blocks}/${preview.total_blocks} 个内容块。`
+        : `已显示完整预览，共 ${preview.total_blocks} 个内容块。`;
+    } catch (error) {
+      previewStatus.textContent = "预览生成失败。";
+    }
+  }
 }
 
 loadApiStatus();

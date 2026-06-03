@@ -25,3 +25,13 @@ class FileUploadResponse(ApiModel):
     extension: str
     detected_type: str
     supported: bool
+
+
+class PreviewResponse(ApiModel):
+    file_id: str
+    filename: str
+    detected_type: str
+    html: str
+    total_blocks: int
+    included_blocks: int
+    truncated: bool

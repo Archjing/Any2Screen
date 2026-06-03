@@ -203,6 +203,38 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.preview-surface {
+  margin-top: 28px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.preview-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.preview-heading h2 {
+  margin: 0;
+}
+
+.preview-heading p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+#preview-frame {
+  display: block;
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  background: #ffffff;
+}
+
 .workflow article {
   min-height: 180px;
   padding: 22px;
@@ -252,5 +284,18 @@ h2 {
 
   .upload-result dl {
     grid-template-columns: 1fr;
+  }
+
+  .preview-heading {
+    display: block;
+    padding: 18px;
+  }
+
+  .preview-heading h2 {
+    margin-top: 12px;
+  }
+
+  #preview-frame {
+    min-height: 440px;
   }
 }

@@ -26,6 +26,7 @@ class UploadedFileRecord:
     extension: str
     detected_type: str
     supported: bool
+    content: bytes
 
 
 class FileRegistry:
@@ -42,6 +43,7 @@ class FileRegistry:
             extension=extension,
             detected_type=detected_type,
             supported=detected_type != "unknown",
+            content=content,
         )
         self._records[record.file_id] = record
         return record
