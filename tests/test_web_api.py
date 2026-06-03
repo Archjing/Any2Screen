@@ -18,9 +18,18 @@ class WebApiTests(unittest.TestCase):
         app = create_app()
         paths = {route.path for route in app.routes}
 
+        self.assertIn("/", paths)
         self.assertIn("/api/health", paths)
         self.assertIn("/api/version", paths)
         self.assertEqual(app.title, "Any2Screen API")
+
+    def test_create_app_mounts_static_assets(self) -> None:
+        from web import create_app
+
+        app = create_app()
+        names = {route.name for route in app.routes}
+
+        self.assertIn("assets", names)
 
     def test_health_response_shape(self) -> None:
         from web.routes import health

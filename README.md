@@ -306,6 +306,7 @@ python3 scripts/any2screen.py web
 默认地址：
 
 - API 根路径：`http://127.0.0.1:8000/api`
+- Web 页面：`http://127.0.0.1:8000/`
 - 健康检查：`http://127.0.0.1:8000/api/health`
 - OpenAPI：`http://127.0.0.1:8000/openapi.json`
 - Swagger UI：`http://127.0.0.1:8000/docs`

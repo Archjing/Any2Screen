@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Any2Screen</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">API-first document conversion</p>
+        <h1>Any2Screen</h1>
+        <p class="summary">把文档转换成适合手机阅读、微信分发和后续多端接入的预览与导出结果。</p>
+      </div>
+      <div class="status-panel" aria-live="polite">
+        <div class="status-row">
+          <span>API</span>
+          <strong id="api-status">checking</strong>
+        </div>
+        <div class="status-row">
+          <span>Version</span>
+          <strong id="api-version">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="workflow">
+      <article>
+        <span class="step">01</span>
+        <h2>Upload</h2>
+        <p>文件上传接口会作为 Web、小程序和 App 的共同入口。</p>
+      </article>
+      <article>
+        <span class="step">02</span>
+        <h2>Preview</h2>
+        <p>快速预览复用服务端的轻量 HTML 生成能力。</p>
+      </article>
+      <article>
+        <span class="step">03</span>
+        <h2>Export</h2>
+        <p>HTML、PDF、微信阅读 PDF 和长图导出统一走任务 API。</p>
+      </article>
+    </section>
+  </main>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

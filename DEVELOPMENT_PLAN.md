@@ -33,7 +33,7 @@
 
 目标：完成最小可用 Web 应用。
 
-- [~] D13：已搭建 FastAPI 服务骨架，提供 `web` 子命令、`/api/health`、`/api/version` 和 OpenAPI；Web 前端骨架尚未补齐。
+- [x] D13：已搭建 Web 前端和 FastAPI 服务骨架，提供 `web` 子命令、移动优先 Web shell、`/api/health`、`/api/version` 和 OpenAPI。
 - [ ] D14：实现单文件上传和格式识别。
 - [ ] D15：实现 Markdown/TXT 预览。
 - [ ] D16：实现 DOCX/PDF 预览。
