@@ -78,13 +78,39 @@
           <p id="preview-status">上传 Markdown、TXT、DOCX 或 PDF 后会在这里显示轻量预览。</p>
         </div>
         <div class="preview-actions">
-          <label class="format-switch" aria-label="选择导出格式">
-            <input id="export-format-toggle" type="checkbox">
-            <span class="format-switch-track">
-              <span>HTML</span>
-              <span>PDF</span>
-            </span>
-          </label>
+          <div class="export-options" aria-label="导出配置">
+            <div class="segmented-control" aria-label="选择屏幕尺寸">
+              <label class="segmented-option">
+                <input type="radio" name="screen-target" value="small" checked>
+                <span data-i18n="smallScreen">小屏</span>
+              </label>
+              <label class="segmented-option">
+                <input type="radio" name="screen-target" value="large">
+                <span data-i18n="largeScreen">大屏</span>
+              </label>
+            </div>
+            <label class="long-image-toggle">
+              <input id="long-image-toggle" type="checkbox">
+              <span data-i18n="longImage">生成长图</span>
+            </label>
+            <label id="document-format-switch" class="format-switch" aria-label="选择导出格式">
+              <input id="export-format-toggle" type="checkbox">
+              <span class="format-switch-track">
+                <span>HTML</span>
+                <span>PDF</span>
+              </span>
+            </label>
+            <div id="image-format-options" class="segmented-control is-disabled" aria-label="选择图片格式">
+              <label class="segmented-option">
+                <input type="radio" name="image-format" value="png" checked disabled>
+                <span>PNG</span>
+              </label>
+              <label class="segmented-option">
+                <input type="radio" name="image-format" value="jpeg" disabled>
+                <span>JPEG</span>
+              </label>
+            </div>
+          </div>
           <button id="export-run" class="secondary-action" type="button" disabled data-i18n="exportButton">导出</button>
           <button id="reader-toggle" class="reader-toggle" type="button" disabled>进入阅读</button>
         </div>

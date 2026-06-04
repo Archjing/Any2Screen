@@ -21,6 +21,9 @@ const I18N = {
     previewTruncated: (included, total) => `已显示 ${included}/${total} 个内容块。`,
     previewComplete: (total) => `已显示完整预览，共 ${total} 个内容块。`,
     exportButton: "导出",
+    smallScreen: "小屏",
+    largeScreen: "大屏",
+    longImage: "生成长图",
     enterReading: "进入阅读",
     exitReading: "退出阅读",
     workflowUploadTitle: "上传",
@@ -58,6 +61,9 @@ const I18N = {
     previewTruncated: (included, total) => `Showing ${included}/${total} content blocks.`,
     previewComplete: (total) => `Showing the full preview with ${total} content blocks.`,
     exportButton: "Export",
+    smallScreen: "Small",
+    largeScreen: "Large",
+    longImage: "Long image",
     enterReading: "Enter reading",
     exitReading: "Exit reading",
     workflowUploadTitle: "Upload",
@@ -175,8 +181,27 @@ function bindApp() {
   const previewFrame = document.querySelector("#preview-frame");
   const readerToggle = document.querySelector("#reader-toggle");
   const exportFormatToggle = document.querySelector("#export-format-toggle");
+  const documentFormatSwitch = document.querySelector("#document-format-switch");
+  const longImageToggle = document.querySelector("#long-image-toggle");
+  const imageFormatOptions = document.querySelector("#image-format-options");
+  const imageFormatInputs = document.querySelectorAll('input[name="image-format"]');
   const exportRun = document.querySelector("#export-run");
   const previewSurface = document.querySelector(".preview-surface");
+
+  function selectedRadioValue(name) {
+    const checked = document.querySelector(`input[name="${name}"]:checked`);
+    return checked ? checked.value : "";
+  }
+
+  function syncExportControls() {
+    const longImage = longImageToggle.checked;
+    exportFormatToggle.disabled = longImage;
+    documentFormatSwitch.classList.toggle("is-disabled", longImage);
+    imageFormatOptions.classList.toggle("is-disabled", !longImage);
+    imageFormatInputs.forEach((input) => {
+      input.disabled = !longImage;
+    });
+  }
 
   function clearPreview() {
     currentFileId = null;
@@ -308,13 +333,24 @@ function bindApp() {
       return;
     }
     const format = exportFormatToggle.checked ? "pdf" : "html";
-    window.open(apiUrl(`/api/exports/${currentFileId}/${format}`), "_blank");
+    const screen = selectedRadioValue("screen-target") || "small";
+    if (longImageToggle.checked) {
+      const imageFormat = selectedRadioValue("image-format") || "png";
+      window.open(apiUrl(`/api/exports/${currentFileId}/image?screen=${screen}&format=${imageFormat}`), "_blank");
+      return;
+    }
+    const endpoint = format === "pdf" && screen === "small" ? "wechat-pdf" : format;
+    window.open(apiUrl(`/api/exports/${currentFileId}/${endpoint}`), "_blank");
   });
+
+  longImageToggle.addEventListener("change", syncExportControls);
 
   document.querySelector("#language-toggle").addEventListener("click", () => {
     currentLanguage = currentLanguage === "zh" ? "en" : "zh";
     translatePage();
   });
+
+  syncExportControls();
 }
 
 translatePage();

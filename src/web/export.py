@@ -2,9 +2,12 @@ import tempfile
 from pathlib import Path
 
 from any2html import generate_html
-from html2screen import render_pdf
+from html2screen import render_image, render_pdf
 from web.document_preview import build_preview_markdown
 from web.files import UploadedFileRecord
+
+SCREEN_WIDTHS = {"small": 430, "large": 1080}
+IMAGE_FORMATS = {"png", "jpeg"}
 
 
 def export_html(record: UploadedFileRecord) -> str:
@@ -30,6 +33,42 @@ def export_pdf_path(record: UploadedFileRecord) -> Path:
         if not render_pdf(html_path, pdf_path, verbose=False, wechat=False):
             raise RuntimeError("PDF export failed")
     return pdf_path
+
+
+def export_wechat_pdf_path(record: UploadedFileRecord) -> Path:
+    # 将微信阅读 PDF 导出文件写入上传文件所在目录。
+    html = export_html(record)
+    pdf_path = record.path.with_suffix(".wechat.pdf")
+    with tempfile.TemporaryDirectory(prefix="any2screen-export-html-") as tmp:
+        html_path = Path(tmp) / f"{Path(record.filename).stem or 'export'}.html"
+        html_path.write_text(html, encoding="utf-8")
+        if not render_pdf(html_path, pdf_path, verbose=False, wechat=True):
+            raise RuntimeError("WeChat PDF export failed")
+    return pdf_path
+
+
+def export_image_path(record: UploadedFileRecord, screen: str, image_format: str) -> Path:
+    # 按屏幕预设将上传记录导出为长图并写入上传文件所在目录。
+    if screen not in SCREEN_WIDTHS:
+        raise ValueError(f"unsupported screen preset: {screen}")
+    if image_format not in IMAGE_FORMATS:
+        raise ValueError(f"unsupported image format: {image_format}")
+
+    html = export_html(record)
+    image_path = record.path.with_name(f"{record.path.stem}.{screen}.{image_format}")
+    with tempfile.TemporaryDirectory(prefix="any2screen-export-html-") as tmp:
+        html_path = Path(tmp) / f"{Path(record.filename).stem or 'export'}.html"
+        html_path.write_text(html, encoding="utf-8")
+        ok, _, _, _ = render_image(
+            html_path,
+            image_path,
+            width=SCREEN_WIDTHS[screen],
+            image_format=image_format,
+            verbose=False,
+        )
+        if not ok:
+            raise RuntimeError("Image export failed")
+    return image_path
 
 
 def export_pdf(record: UploadedFileRecord) -> bytes:

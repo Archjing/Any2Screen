@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile
 
 from preview import PreviewOptions, generate_preview_html
 from web.document_preview import build_preview_markdown
-from web.export import export_filename, export_html_path, export_pdf_path
+from web.export import export_filename, export_html_path, export_image_path, export_pdf_path, export_wechat_pdf_path
 from web.files import file_registry
 from web.schemas import FileUploadResponse, HealthResponse, PreviewResponse, VersionResponse
 
@@ -113,6 +114,34 @@ def export_pdf_file(file_id: str) -> Response:
         content=pdf_path.read_bytes(),
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".pdf")}"'},
+    )
+
+
+@router.get("/exports/{file_id}/wechat-pdf", response_class=Response, tags=["exports"])
+def export_wechat_pdf_file(file_id: str) -> Response:
+    # 根据 file_id 生成微信阅读 PDF 下载响应。
+    record = _get_export_record(file_id)
+    pdf_path = export_wechat_pdf_path(record)
+    return Response(
+        content=pdf_path.read_bytes(),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".wechat.pdf")}"'},
+    )
+
+
+@router.get("/exports/{file_id}/image", response_class=Response, tags=["exports"])
+def export_image_file(
+    file_id: str,
+    screen: Literal["small", "large"] = "small",
+    format: Literal["png", "jpeg"] = "png",
+) -> Response:
+    # 根据 file_id、屏幕预设和图片格式生成长图下载响应。
+    record = _get_export_record(file_id)
+    image_path = export_image_path(record, screen=screen, image_format=format)
+    return Response(
+        content=image_path.read_bytes(),
+        media_type=f"image/{format}",
+        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, f".{screen}.{format}")}"'},
     )
 
 

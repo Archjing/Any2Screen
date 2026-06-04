@@ -1,5 +1,6 @@
 import unittest
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from tests import _paths  # noqa: F401
 
@@ -21,7 +22,9 @@ class WebApiTests(unittest.TestCase):
 
         self.assertIn("/", paths)
         self.assertIn("/api/exports/{file_id}/html", paths)
+        self.assertIn("/api/exports/{file_id}/image", paths)
         self.assertIn("/api/exports/{file_id}/pdf", paths)
+        self.assertIn("/api/exports/{file_id}/wechat-pdf", paths)
         self.assertIn("/api/files", paths)
         self.assertIn("/api/health", paths)
         self.assertIn("/api/previews/{file_id}", paths)
@@ -179,6 +182,78 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(output_path.parent, record.path.parent)
         self.assertTrue(output_path.exists())
         self.assertTrue(output_path.read_bytes().startswith(b"%PDF"))
+
+    def test_export_wechat_pdf_returns_download_response(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_wechat_pdf_file
+
+        record = file_registry.add("report.md", b"# Report")
+        response = export_wechat_pdf_file(record.file_id)
+        output_path = record.path.with_suffix(".wechat.pdf")
+
+        self.assertEqual(response.media_type, "application/pdf")
+        self.assertIn('filename="report.wechat.pdf"', response.headers["Content-Disposition"])
+        self.assertTrue(response.body.startswith(b"%PDF"))
+        self.assertEqual(output_path.parent, record.path.parent)
+        self.assertTrue(output_path.exists())
+        self.assertTrue(output_path.read_bytes().startswith(b"%PDF"))
+
+    def test_export_image_returns_download_response(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_image_file
+
+        def fake_render_image(html_path, image_path, width, image_format, verbose=False):
+            image_path.write_bytes(b"\x89PNG\r\n\x1a\nfake")
+            return True, image_path.stat().st_size, width, 1200
+
+        record = file_registry.add("report.md", b"# Report")
+        with patch("web.export.render_image", side_effect=fake_render_image) as render:
+            response = export_image_file(record.file_id, screen="small", format="png")
+        output_path = record.path.with_name("report.small.png")
+
+        self.assertEqual(response.media_type, "image/png")
+        self.assertIn('filename="report.small.png"', response.headers["Content-Disposition"])
+        self.assertTrue(response.body.startswith(b"\x89PNG"))
+        self.assertEqual(output_path.parent, record.path.parent)
+        self.assertTrue(output_path.exists())
+        render.assert_called_once()
+        self.assertEqual(render.call_args.kwargs["width"], 430)
+        self.assertEqual(render.call_args.kwargs["image_format"], "png")
+
+    def test_export_image_large_jpeg_uses_large_screen_preset(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_image_file
+
+        def fake_render_image(html_path, image_path, width, image_format, verbose=False):
+            image_path.write_bytes(b"\xff\xd8fake")
+            return True, image_path.stat().st_size, width, 1600
+
+        record = file_registry.add("report.md", b"# Report")
+        with patch("web.export.render_image", side_effect=fake_render_image) as render:
+            response = export_image_file(record.file_id, screen="large", format="jpeg")
+        output_path = record.path.with_name("report.large.jpeg")
+
+        self.assertEqual(response.media_type, "image/jpeg")
+        self.assertIn('filename="report.large.jpeg"', response.headers["Content-Disposition"])
+        self.assertTrue(response.body.startswith(b"\xff\xd8"))
+        self.assertTrue(output_path.exists())
+        render.assert_called_once()
+        self.assertEqual(render.call_args.kwargs["width"], 1080)
+        self.assertEqual(render.call_args.kwargs["image_format"], "jpeg")
+
+    def test_export_image_rejects_invalid_query_params(self) -> None:
+        try:
+            from fastapi.testclient import TestClient
+        except RuntimeError as e:
+            self.skipTest(f"FastAPI TestClient dependencies are not installed: {e}")
+        from web import create_app
+        from web.files import file_registry
+
+        record = file_registry.add("report.md", b"# Report")
+        client = TestClient(create_app())
+
+        self.assertEqual(client.get(f"/api/exports/{record.file_id}/image?screen=tiny").status_code, 422)
+        self.assertEqual(client.get(f"/api/exports/{record.file_id}/image?format=webp").status_code, 422)
 
     def test_export_rejects_unsupported_type(self) -> None:
         from fastapi import HTTPException
