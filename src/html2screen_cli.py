@@ -7,6 +7,7 @@ from html2screen import render_image, render_pdf
 
 
 def discover_html_files(paths: list[Path]) -> list[Path]:
+    # 从文件或目录参数中收集 HTML 输入文件。
     files: list[Path] = []
     for p in paths:
         if p.is_file():
@@ -19,6 +20,7 @@ def discover_html_files(paths: list[Path]) -> list[Path]:
 
 
 def resolve_output_path(source: Path, output_dir: Path | None) -> Path:
+    # 根据输出目录决定 HTML 阶段产物的基础路径。
     if output_dir:
         return output_dir / source.name
     return source
@@ -35,6 +37,7 @@ def process_file(
     image_format: str,
     verbose: bool,
 ) -> bool:
+    # 将单个 HTML 文件按指定格式渲染为 HTML/PDF/微信 PDF/长图。
     if source.suffix.lower() not in (".html", ".htm"):
         print(f"  ERROR: unsupported input format: {source}")
         return False
@@ -82,6 +85,7 @@ def process_file(
 
 
 def main() -> int:
+    # 解析 html2screen 命令参数并批量渲染 HTML 输入。
     parser = argparse.ArgumentParser(
         description="Convert HTML intermediate output to screen-friendly formats",
         formatter_class=argparse.RawDescriptionHelpFormatter,

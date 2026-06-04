@@ -112,8 +112,8 @@ function bindUploadForm() {
   }
 
   async function loadPreview(file) {
-    if (!["markdown", "text"].includes(file.detected_type)) {
-      previewStatus.textContent = "当前只支持 Markdown 和 TXT 预览。";
+    if (!["markdown", "text", "docx", "pdf"].includes(file.detected_type)) {
+      previewStatus.textContent = "当前只支持 Markdown、TXT、DOCX 和 PDF 预览。";
       return;
     }
 

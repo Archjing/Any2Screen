@@ -8,6 +8,7 @@ from html2screen_cli import process_file as html2screen_process_file
 
 
 def discover_input_files(paths: list[Path]) -> list[Path]:
+    # 从输入路径中收集主转换 pipeline 支持的 Markdown 文件。
     files: list[Path] = []
     for p in paths:
         if p.is_file():
@@ -21,6 +22,7 @@ def discover_input_files(paths: list[Path]) -> list[Path]:
 
 
 def write_intermediate_html(source: Path, intermediate_dir: Path) -> Path:
+    # 把 Markdown 输入写成临时 HTML 中间文件供后续渲染使用。
     if source.suffix.lower() not in (".md", ".markdown"):
         raise ValueError(f"unsupported input format: {source}")
     html = generate_html(source.read_text(encoding="utf-8"), source)
@@ -30,6 +32,7 @@ def write_intermediate_html(source: Path, intermediate_dir: Path) -> Path:
 
 
 def main() -> int:
+    # 解析 convert 命令参数并执行 any2html 到 html2screen 的完整流程。
     parser = argparse.ArgumentParser(
         description="Run any2html -> html2screen pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,

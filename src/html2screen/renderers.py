@@ -58,6 +58,7 @@ table { font-size: 0.9em; }
 
 
 def render_pdf(html_path: Path, pdf_path: Path, verbose: bool = False, wechat: bool = False) -> bool:
+    # 使用 WeasyPrint 将 HTML 文件渲染为标准或微信阅读 PDF。
     """Render a self-contained HTML file to PDF via WeasyPrint.
     Standard mode: A4 with @media print CSS.
     WeChat mode: narrow page, larger text, continuous tall pages."""
@@ -106,6 +107,7 @@ def render_image(
     image_format: str,
     verbose: bool = False,
 ) -> tuple[bool, int, int, int]:
+    # 使用 Playwright 将 HTML 文件截取为长图。
     """Render a self-contained HTML file to a long image via Playwright."""
     try:
         from playwright.sync_api import sync_playwright
@@ -130,5 +132,4 @@ def render_image(
         if verbose:
             print(f"    Image render error: {e}")
         return False, 0, width, 0
-
 

@@ -6,6 +6,7 @@ from preview import PreviewOptions, generate_preview_html
 
 
 def discover_input_files(paths: list[Path]) -> list[Path]:
+    # 从文件或目录参数中收集可生成快速预览的 Markdown 文件。
     files: list[Path] = []
     for p in paths:
         if p.is_file():
@@ -19,6 +20,7 @@ def discover_input_files(paths: list[Path]) -> list[Path]:
 
 
 def resolve_output_path(source: Path, output: Path | None) -> Path:
+    # 根据输入文件和输出参数计算预览 HTML 路径。
     if output is None:
         return source.with_suffix(".preview.html")
     if output.suffix and len(output.suffix) > 1:
@@ -27,6 +29,7 @@ def resolve_output_path(source: Path, output: Path | None) -> Path:
 
 
 def preview_file(source: Path, output: Path | None, options: PreviewOptions) -> bool:
+    # 为单个 Markdown 文件生成轻量 HTML 预览。
     if source.suffix.lower() not in (".md", ".markdown"):
         print(f"  ERROR: unsupported input format: {source}")
         return False
@@ -48,6 +51,7 @@ def preview_file(source: Path, output: Path | None, options: PreviewOptions) -> 
 
 
 def main() -> int:
+    # 解析 preview 命令参数并批量生成快速预览文件。
     parser = argparse.ArgumentParser(
         description="Generate fast lightweight HTML previews for supported documents",
         formatter_class=argparse.RawDescriptionHelpFormatter,

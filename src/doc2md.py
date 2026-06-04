@@ -23,10 +23,12 @@ except ImportError:
     HAS_MSOFFCRYPTO = False
 
 def safe_filename(name):
+    # 根据原文件名生成对应的 Markdown 输出文件名。
     base = os.path.splitext(name)[0]
     return base + ".md"
 
 def convert_docx(filepath, outpath, password=None):
+    # 将 DOCX 文档提取为 Markdown 文本文件。
     """Convert .docx to .md, decrypting if password-protected."""
     decrypted = None
     try:
@@ -68,6 +70,7 @@ def convert_docx(filepath, outpath, password=None):
         return False, str(e)
 
 def convert_pdf(filepath, outpath):
+    # 将 PDF 页面文本提取为 Markdown 文本文件。
     """Extract text from PDF as markdown."""
     try:
         reader = PyPDF2.PdfReader(filepath)
@@ -83,6 +86,7 @@ def convert_pdf(filepath, outpath):
         return False, str(e)
 
 def convert_txt(filepath, outpath):
+    # 将 TXT 文件按 UTF-8 读取后写为 Markdown 文件。
     """Copy .txt as .md (passthrough)."""
     try:
         with open(filepath, 'r', encoding='utf-8') as src:
@@ -94,6 +98,7 @@ def convert_txt(filepath, outpath):
         return False, str(e)
 
 def main():
+    # 解析 doc2md 命令参数并执行文件或目录批量转换。
     parser = argparse.ArgumentParser(description="Convert documents to Markdown")
     parser.add_argument("input", help="File or directory to convert")
     parser.add_argument("-o", "--output", default=".", help="Output directory (default: current)")

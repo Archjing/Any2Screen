@@ -12,6 +12,7 @@ IMAGE_DIR = ROOT_DIR / "img"
 
 
 def create_app() -> FastAPI:
+    # 创建 FastAPI 应用并挂载 API 路由、静态资源和首页。
     app = FastAPI(
         title="Any2Screen API",
         version="0.1.0",
@@ -24,10 +25,12 @@ def create_app() -> FastAPI:
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
+        # 返回 Web shell 首页并禁用缓存。
         return FileResponse(STATIC_DIR / "index.html", headers={"Cache-Control": "no-store"})
 
     @app.middleware("http")
     async def no_cache_assets(request, call_next):
+        # 为前端静态资源响应添加 no-store 缓存控制。
         response: Response = await call_next(request)
         if request.url.path.startswith("/assets/"):
             response.headers["Cache-Control"] = "no-store"

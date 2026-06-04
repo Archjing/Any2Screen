@@ -31,6 +31,7 @@ class _MarkdownBlock:
 
 
 def build_markdown_preview(md_text: str, options: PreviewOptions | None = None) -> PreviewResult:
+    # 按语义块截断 Markdown 内容并返回轻量预览结果。
     """Return a lightweight Markdown preview by block count.
 
     This intentionally avoids PDF/browser rendering. It is the fast path for
@@ -61,12 +62,14 @@ def generate_preview_html(
     source_path: Path,
     options: PreviewOptions | None = None,
 ) -> tuple[str, PreviewResult]:
+    # 生成轻量 Markdown 预览对应的完整 HTML 文档。
     result = build_markdown_preview(md_text, options)
     html = generate_html(result.markdown, source_path)
     return html, result
 
 
 def _parse_markdown_blocks(md_text: str, options: PreviewOptions) -> list[_MarkdownBlock]:
+    # 把 Markdown 文本切分成标题、段落、表格、代码块等预览块。
     lines = md_text.splitlines()
     blocks: list[_MarkdownBlock] = []
     i = 0
@@ -93,10 +96,12 @@ def _parse_markdown_blocks(md_text: str, options: PreviewOptions) -> list[_Markd
 
 
 def _is_fence_start(line: str) -> bool:
+    # 判断当前行是否是围栏代码块的起始行。
     return bool(FENCE_RE.match(line))
 
 
 def _is_table_start(lines: list[str], index: int) -> bool:
+    # 判断当前位置是否是 Markdown 表格的起始行。
     return (
         index + 1 < len(lines)
         and "|" in lines[index]
@@ -105,11 +110,13 @@ def _is_table_start(lines: list[str], index: int) -> bool:
 
 
 def _is_table_delimiter(line: str) -> bool:
+    # 判断当前行是否是 Markdown 表格分隔线。
     stripped = line.strip()
     return "|" in stripped and bool(stripped) and set(stripped) <= set("|-: ")
 
 
 def _is_single_line_block(line: str) -> bool:
+    # 判断当前行是否可作为独立单行块处理。
     stripped = line.strip()
     return (
         stripped.startswith("#")
@@ -123,6 +130,7 @@ def _consume_fenced_code(
     start: int,
     options: PreviewOptions,
 ) -> tuple[_MarkdownBlock, int]:
+    # 消费一个围栏代码块并按最大代码行数截断。
     first = lines[start]
     match = FENCE_RE.match(first)
     fence = match.group(1) if match else first.strip()[:3]
@@ -160,6 +168,7 @@ def _consume_table(
     start: int,
     options: PreviewOptions,
 ) -> tuple[_MarkdownBlock, int]:
+    # 消费一个 Markdown 表格并按最大数据行数截断。
     table_lines = []
     i = start
     while i < len(lines) and lines[i].strip() and "|" in lines[i]:
@@ -174,6 +183,7 @@ def _consume_table(
 
 
 def _consume_until_blank(lines: list[str], start: int) -> tuple[_MarkdownBlock, int]:
+    # 从当前位置持续消费到空行作为一个块。
     out = []
     i = start
     while i < len(lines) and lines[i].strip():
@@ -183,6 +193,7 @@ def _consume_until_blank(lines: list[str], start: int) -> tuple[_MarkdownBlock, 
 
 
 def _consume_paragraph(lines: list[str], start: int) -> tuple[_MarkdownBlock, int]:
+    # 从当前位置消费普通段落直到遇到新块或空行。
     out = []
     i = start
     while i < len(lines):
@@ -196,5 +207,6 @@ def _consume_paragraph(lines: list[str], start: int) -> tuple[_MarkdownBlock, in
 
 
 def _join_blocks(blocks: list[_MarkdownBlock]) -> str:
+    # 将预览块重新拼接成 Markdown 文本。
     chunks = ["\n".join(block.lines).rstrip() for block in blocks if block.lines]
     return "\n\n".join(chunk for chunk in chunks if chunk).rstrip() + "\n"

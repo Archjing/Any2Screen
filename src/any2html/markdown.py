@@ -374,6 +374,7 @@ HTML_TEMPLATE = """\
 # Markdown Renderer
 # ──────────────────────────────────────────────
 def make_md_engine() -> MarkdownIt:
+    # 创建启用表格、删除线和可选插件的 Markdown 解析器。
     """Create a markdown-it engine with all the goodies enabled."""
     md = MarkdownIt("js-default", {
         "breaks": True,
@@ -399,6 +400,7 @@ def make_md_engine() -> MarkdownIt:
 
 
 def mermaid_cleanup(html: str) -> str:
+    # 清理 Mermaid 代码块周围可能出现的空段落标签。
     """
     Remove empty <p> tags around mermaid code blocks
     (markdown-it wraps code blocks in <p> when inside a <pre>).
@@ -409,11 +411,13 @@ def mermaid_cleanup(html: str) -> str:
 
 
 def wrap_tables(html: str) -> str:
+    # 为 HTML 表格包裹可滚动容器以适配小屏和长表格。
     """Wrap every <table> in a scrollable container so wide tables
     get horizontal scrollbars instead of overflowing the viewport.
     Tall tables (>15 rows) also get a max-height vertical scroll."""
 
     def _wrapper(match: re.Match) -> str:
+        # 根据表格行数决定是否添加纵向滚动样式类。
         table_html = match.group(0)
         # Count <tr> to decide if vertical scroll is needed
         row_count = table_html.count('<tr>')
@@ -424,6 +428,7 @@ def wrap_tables(html: str) -> str:
 
 
 def convert_md_to_html(md_text: str) -> str:
+    # 将原始 Markdown 文本转换为经过清理和表格包装的 HTML 片段。
     """Convert raw Markdown text to clean HTML body."""
     md = make_md_engine()
     html = md.render(md_text)
@@ -433,6 +438,7 @@ def convert_md_to_html(md_text: str) -> str:
 
 
 def extract_title(md_text: str, source_path: Path) -> str:
+    # 从第一个一级标题提取文档标题，没有则使用文件名。
     """Extract the first H1 (# Title) from the markdown, else use filename."""
     for line in md_text.splitlines():
         line = line.strip()
@@ -443,6 +449,7 @@ def extract_title(md_text: str, source_path: Path) -> str:
 
 
 def detect_lang(md_text: str) -> str:
+    # 根据前段文本中的中文字符比例推断页面语言。
     """Detect if the document is primarily Chinese."""
     # Simple heuristic: count CJK characters in first 500 chars
     sample = md_text[:500]
@@ -454,6 +461,7 @@ def detect_lang(md_text: str) -> str:
 
 
 def generate_html(md_text: str, source_path: Path) -> str:
+    # 将 Markdown 文本渲染为带样式和元信息的完整 HTML 文档。
     """Full pipeline: markdown -> HTML body -> wrapped document."""
     title = extract_title(md_text, source_path)
     lang = detect_lang(md_text)
@@ -467,4 +475,3 @@ def generate_html(md_text: str, source_path: Path) -> str:
         content=content,
         source_file=xml_escape(source_name),
     )
-

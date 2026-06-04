@@ -6,6 +6,7 @@ from command_registry import COMMAND_SCRIPTS
 
 
 def main() -> int:
+    # 解析统一入口参数并把请求分发到对应子命令脚本。
     parser = argparse.ArgumentParser(prog="any2screen", description="Unified entrypoint for Any2Screen modules")
     parser.add_argument("module", choices=sorted(COMMAND_SCRIPTS.keys()), help="Module to run")
     parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments passed to selected module")

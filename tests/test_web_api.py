@@ -100,6 +100,39 @@ class WebApiTests(unittest.TestCase):
         self.assertIn("<title>notes</title>", payload["html"])
         self.assertIn("plain text", payload["html"])
 
+    def test_preview_file_generates_docx_preview(self) -> None:
+        from io import BytesIO
+
+        from docx import Document
+        from web.files import file_registry
+        from web.routes import preview_file
+
+        buffer = BytesIO()
+        document = Document()
+        document.add_heading("Docx Title", level=1)
+        document.add_paragraph("Docx paragraph")
+        document.save(buffer)
+
+        record = file_registry.add("sample.docx", buffer.getvalue())
+        payload = preview_file(record.file_id).model_dump()
+
+        self.assertEqual(payload["detected_type"], "docx")
+        self.assertIn("<title>Docx Title</title>", payload["html"])
+        self.assertIn("Docx paragraph", payload["html"])
+
+    def test_preview_file_generates_pdf_preview(self) -> None:
+        from weasyprint import HTML
+        from web.files import file_registry
+        from web.routes import preview_file
+
+        content = HTML(string="<h1>PDF Title</h1><p>PDF paragraph</p>").write_pdf()
+        record = file_registry.add("sample.pdf", content)
+        payload = preview_file(record.file_id).model_dump()
+
+        self.assertEqual(payload["detected_type"], "pdf")
+        self.assertIn("<title>sample</title>", payload["html"])
+        self.assertIn("PDF", payload["html"])
+
     def test_preview_html_returns_html_response(self) -> None:
         from web.files import file_registry
         from web.routes import preview_html
@@ -108,6 +141,7 @@ class WebApiTests(unittest.TestCase):
         response = preview_html(record.file_id)
 
         self.assertEqual(response.media_type, "text/html; charset=utf-8")
+        self.assertIn(b'<base href="/">', response.body)
         self.assertIn(b"<title>Report</title>", response.body)
 
     def test_preview_file_rejects_unsupported_type(self) -> None:

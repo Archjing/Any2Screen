@@ -3,6 +3,7 @@ import argparse
 
 
 def main() -> int:
+    # 解析 web 命令参数并启动 FastAPI 开发服务器。
     parser = argparse.ArgumentParser(
         description="Start the Any2Screen FastAPI development server",
         formatter_class=argparse.RawDescriptionHelpFormatter,

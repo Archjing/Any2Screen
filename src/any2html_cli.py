@@ -7,6 +7,7 @@ from any2html import generate_html
 
 
 def discover_input_files(paths: list[Path]) -> list[Path]:
+    # 从文件或目录参数中收集可转换的 Markdown 输入文件。
     files: list[Path] = []
     for p in paths:
         if p.is_file():
@@ -20,6 +21,7 @@ def discover_input_files(paths: list[Path]) -> list[Path]:
 
 
 def resolve_output_path(source: Path, output: Path | None) -> Path:
+    # 根据输入文件和输出参数计算 HTML 产物路径。
     if output is None:
         return source.with_suffix(".html")
     if output.suffix and len(output.suffix) > 1:
@@ -28,6 +30,7 @@ def resolve_output_path(source: Path, output: Path | None) -> Path:
 
 
 def convert_file(source: Path, output: Path | None) -> bool:
+    # 将单个 Markdown 文件转换为 HTML 中间产物。
     if source.suffix.lower() not in (".md", ".markdown"):
         print(f"  ERROR: unsupported input format: {source}")
         return False
@@ -44,6 +47,7 @@ def convert_file(source: Path, output: Path | None) -> bool:
 
 
 def main() -> int:
+    # 解析 any2html 命令参数并批量执行 HTML 中间产物生成。
     parser = argparse.ArgumentParser(
         description="Convert supported document formats to HTML intermediate output",
         formatter_class=argparse.RawDescriptionHelpFormatter,

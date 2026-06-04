@@ -37,7 +37,7 @@
 - [x] D14：已实现单文件上传和格式识别，提供 `POST /api/files`，返回 `file_id`、文件大小、扩展名、识别类型和支持状态。
 - [x] D14.1：已实现鼠标拖拽上传文件，拖放后复用同一个 `POST /api/files` 上传链路。
 - [x] D15：已实现 Markdown/TXT 预览，提供 `GET /api/previews/{file_id}`，上传后 Web 页面自动展示轻量 HTML 预览。
-- [ ] D16：实现 DOCX/PDF 预览。
+- [x] D16：已实现 DOCX/PDF 预览，DOCX 从段落和标题提取 Markdown，PDF 从页面文本提取 Markdown，并复用轻量 HTML 预览链路。
 - [ ] D17：实现移动端阅读视图和基础主题。
 - [ ] D18：实现 HTML/PDF 导出。
 - [ ] D19：实现“微信阅读”与“飞书协作”导出预设。

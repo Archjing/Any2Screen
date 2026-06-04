@@ -6,6 +6,7 @@ from html2screen import render_image, render_pdf
 
 
 def resolve_output_path(source: Path, output_dir: Path | None, inplace: bool) -> Path:
+    # 根据输出目录和原地写入标记决定 pipeline 的 HTML 输出路径。
     """Determine where the intermediate .html path maps for output naming."""
     if inplace:
         return source.with_suffix(".html")
@@ -25,6 +26,7 @@ def convert_markdown_file(
     image_width: int = 960,
     image_format: str = "png",
 ) -> bool:
+    # 对单个 Markdown 文件执行 HTML、PDF、微信 PDF 和图片输出流程。
     """Run any2html -> html2screen for one Markdown file."""
     if not source.exists():
         print(f"  ERROR: NOT FOUND: {source}")
