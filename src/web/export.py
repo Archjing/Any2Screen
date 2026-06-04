@@ -13,16 +13,28 @@ def export_html(record: UploadedFileRecord) -> str:
     return generate_html(markdown, Path(record.filename))
 
 
-def export_pdf(record: UploadedFileRecord) -> bytes:
-    # 将上传记录转换为 A4 PDF 导出字节。
+def export_html_path(record: UploadedFileRecord) -> Path:
+    # 将 HTML 导出文件写入上传文件所在目录。
+    output_path = record.path.with_suffix(".html")
+    output_path.write_text(export_html(record), encoding="utf-8")
+    return output_path
+
+
+def export_pdf_path(record: UploadedFileRecord) -> Path:
+    # 将 A4 PDF 导出文件写入上传文件所在目录。
     html = export_html(record)
-    with tempfile.TemporaryDirectory(prefix="any2screen-export-") as tmp:
+    pdf_path = record.path.with_suffix(".pdf")
+    with tempfile.TemporaryDirectory(prefix="any2screen-export-html-") as tmp:
         html_path = Path(tmp) / f"{Path(record.filename).stem or 'export'}.html"
-        pdf_path = html_path.with_suffix(".pdf")
         html_path.write_text(html, encoding="utf-8")
         if not render_pdf(html_path, pdf_path, verbose=False, wechat=False):
             raise RuntimeError("PDF export failed")
-        return pdf_path.read_bytes()
+    return pdf_path
+
+
+def export_pdf(record: UploadedFileRecord) -> bytes:
+    # 将上传记录转换为 A4 PDF 导出字节。
+    return export_pdf_path(record).read_bytes()
 
 
 def export_filename(filename: str, suffix: str) -> str:

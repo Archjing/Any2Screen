@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from pathlib import PurePath
 from uuid import uuid4
 
@@ -27,25 +28,33 @@ class UploadedFileRecord:
     detected_type: str
     supported: bool
     content: bytes
+    path: Path
 
 
 class FileRegistry:
-    def __init__(self) -> None:
+    def __init__(self, upload_root: Path | str = "data/uploads") -> None:
         # 初始化内存文件记录表。
         self._records: dict[str, UploadedFileRecord] = {}
+        self.upload_root = Path(upload_root)
 
     def add(self, filename: str, content: bytes) -> UploadedFileRecord:
         # 保存上传文件内容和识别后的元数据。
+        file_id = str(uuid4())
+        safe_filename = PurePath(filename).name or "upload"
+        path = self.upload_root / file_id / safe_filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
         extension = detect_extension(filename)
         detected_type = detect_document_type(filename)
         record = UploadedFileRecord(
-            file_id=str(uuid4()),
-            filename=PurePath(filename).name or "upload",
+            file_id=file_id,
+            filename=safe_filename,
             size_bytes=len(content),
             extension=extension,
             detected_type=detected_type,
             supported=detected_type != "unknown",
             content=content,
+            path=path,
         )
         self._records[record.file_id] = record
         return record

@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 exports/
+data/uploads/
 .venv/
 *.egg-info/
 prompts/

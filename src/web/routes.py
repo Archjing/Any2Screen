@@ -5,7 +5,7 @@ from fastapi import APIRouter, File, HTTPException, Response, UploadFile
 
 from preview import PreviewOptions, generate_preview_html
 from web.document_preview import build_preview_markdown
-from web.export import export_filename, export_html, export_pdf
+from web.export import export_filename, export_html_path, export_pdf_path
 from web.files import file_registry
 from web.schemas import FileUploadResponse, HealthResponse, PreviewResponse, VersionResponse
 
@@ -96,9 +96,9 @@ def preview_html(
 def export_html_file(file_id: str) -> Response:
     # 根据 file_id 生成完整 HTML 下载响应。
     record = _get_export_record(file_id)
-    html = export_html(record)
+    html_path = export_html_path(record)
     return Response(
-        content=_with_root_base(html),
+        content=_with_root_base(html_path.read_text(encoding="utf-8")),
         media_type="text/html; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".html")}"'},
     )
@@ -108,9 +108,9 @@ def export_html_file(file_id: str) -> Response:
 def export_pdf_file(file_id: str) -> Response:
     # 根据 file_id 生成 A4 PDF 下载响应。
     record = _get_export_record(file_id)
-    pdf = export_pdf(record)
+    pdf_path = export_pdf_path(record)
     return Response(
-        content=pdf,
+        content=pdf_path.read_bytes(),
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".pdf")}"'},
     )

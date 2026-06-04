@@ -9,35 +9,63 @@
 <body>
   <main class="app-shell">
     <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">API-first document conversion</p>
-        <h1>Any2Screen</h1>
-        <p class="summary">把文档转换成适合手机阅读、微信分发和后续多端接入的预览与导出结果。</p>
-      </div>
-      <div class="status-panel" aria-live="polite">
-        <div class="status-row">
-          <span>API</span>
-          <strong id="api-status">checking</strong>
+      <div class="hero-meta">
+        <div class="hero-topline">
+          <p class="eyebrow">
+            <span data-i18n="heroEyebrow">API 优先的文档转换</span>
+            <span class="eyebrow-en">API-first document conversion</span>
+          </p>
         </div>
-        <div class="status-row">
-          <span>Version</span>
-          <strong id="api-version">-</strong>
+        <button id="language-toggle" class="language-toggle" type="button">EN</button>
+      </div>
+      <div class="hero-main">
+        <div class="hero-copy">
+          <h1>Any2Screen</h1>
+          <p class="summary">把文档转换成适合手机阅读、微信分发和后续多端接入的预览与导出结果。<br>Convert documents into previews and exports ready for mobile reading, WeChat sharing, and future multi-platform access.</p>
+        </div>
+        <div class="status-panel" aria-live="polite">
+          <div class="status-row">
+            <span>API</span>
+            <strong id="api-status">检查中</strong>
+          </div>
+          <div class="status-row">
+            <span data-i18n="versionLabel">版本</span>
+            <strong id="api-version">-</strong>
+          </div>
         </div>
       </div>
+    </section>
+
+    <section class="workflow">
+      <article>
+        <span class="step">01</span>
+        <h2 data-i18n="workflowUploadTitle">上传</h2>
+        <p data-i18n="workflowUploadDescription">文件上传接口会作为 Web、小程序和 App 的共同入口。</p>
+      </article>
+      <article>
+        <span class="step">02</span>
+        <h2 data-i18n="workflowPreviewTitle">预览</h2>
+        <p data-i18n="workflowPreviewDescription">快速预览复用服务端的轻量 HTML 生成能力。</p>
+      </article>
+      <article>
+        <span class="step">03</span>
+        <h2 data-i18n="workflowExportTitle">导出</h2>
+        <p data-i18n="workflowExportDescription">HTML、PDF、微信阅读 PDF 和长图导出统一走任务 API。</p>
+      </article>
     </section>
 
     <section class="upload-surface" aria-labelledby="upload-title">
       <div>
         <span class="step">D14</span>
-        <h2 id="upload-title">Upload a document</h2>
-        <p>选择一个文件，服务端会返回统一的 file_id 和格式识别结果。</p>
+        <h2 id="upload-title" data-i18n="uploadTitle">上传文档</h2>
+        <p data-i18n="uploadDescription">选择一个文件，服务端会返回统一的 file_id 和格式识别结果。</p>
       </div>
       <form id="upload-form" class="upload-form">
         <label id="drop-zone" class="file-picker">
           <input id="file-input" type="file" name="file" accept=".md,.markdown,.txt,.docx,.pdf,.html,.htm,.png,.jpg,.jpeg,.webp">
-          <span id="file-label">Select or drop file</span>
+          <span id="file-label">选择或拖放文件</span>
         </label>
-        <button type="submit">Upload</button>
+        <button type="submit" data-i18n="uploadButton">上传</button>
       </form>
       <div id="upload-result" class="upload-result" aria-live="polite"></div>
     </section>
@@ -46,7 +74,7 @@
       <div class="preview-heading">
         <div class="preview-copy">
           <span class="step">D17</span>
-          <h2 id="preview-title">Reader Preview</h2>
+          <h2 id="preview-title" data-i18n="previewTitle">阅读预览</h2>
           <p id="preview-status">上传 Markdown、TXT、DOCX 或 PDF 后会在这里显示轻量预览。</p>
         </div>
         <div class="preview-actions">
@@ -57,30 +85,13 @@
               <span>PDF</span>
             </span>
           </label>
-          <button id="export-run" class="secondary-action" type="button" disabled>Export</button>
-          <button id="reader-toggle" class="reader-toggle" type="button" disabled>Enter reading</button>
+          <button id="export-run" class="secondary-action" type="button" disabled data-i18n="exportButton">导出</button>
+          <button id="reader-toggle" class="reader-toggle" type="button" disabled>进入阅读</button>
         </div>
       </div>
       <iframe id="preview-frame" title="Document preview"></iframe>
     </section>
 
-    <section class="workflow">
-      <article>
-        <span class="step">01</span>
-        <h2>Upload</h2>
-        <p>文件上传接口会作为 Web、小程序和 App 的共同入口。</p>
-      </article>
-      <article>
-        <span class="step">02</span>
-        <h2>Preview</h2>
-        <p>快速预览复用服务端的轻量 HTML 生成能力。</p>
-      </article>
-      <article>
-        <span class="step">03</span>
-        <h2>Export</h2>
-        <p>HTML、PDF、微信阅读 PDF 和长图导出统一走任务 API。</p>
-      </article>
-    </section>
   </main>
   <script src="/assets/app.js" defer></script>
 </body>

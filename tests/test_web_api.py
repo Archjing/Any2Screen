@@ -1,4 +1,5 @@
 import unittest
+from tempfile import TemporaryDirectory
 
 from tests import _paths  # noqa: F401
 
@@ -57,16 +58,19 @@ class WebApiTests(unittest.TestCase):
     def test_file_registry_detects_supported_markdown_upload(self) -> None:
         from web.files import FileRegistry
 
-        registry = FileRegistry()
-        record = registry.add("report.md", b"# Report")
+        with TemporaryDirectory() as tmp:
+            registry = FileRegistry(upload_root=tmp)
+            record = registry.add("report.md", b"# Report")
 
-        self.assertEqual(record.filename, "report.md")
-        self.assertEqual(record.size_bytes, 8)
-        self.assertEqual(record.extension, ".md")
-        self.assertEqual(record.detected_type, "markdown")
-        self.assertTrue(record.supported)
-        self.assertEqual(record.content, b"# Report")
-        self.assertIs(registry.get(record.file_id), record)
+            self.assertEqual(record.filename, "report.md")
+            self.assertEqual(record.size_bytes, 8)
+            self.assertEqual(record.extension, ".md")
+            self.assertEqual(record.detected_type, "markdown")
+            self.assertTrue(record.supported)
+            self.assertEqual(record.content, b"# Report")
+            self.assertEqual(record.path.read_bytes(), b"# Report")
+            self.assertEqual(record.path.parent.parent.as_posix(), tmp)
+            self.assertIs(registry.get(record.file_id), record)
 
     def test_file_registry_marks_unknown_uploads(self) -> None:
         from web.files import FileRegistry
@@ -152,10 +156,14 @@ class WebApiTests(unittest.TestCase):
 
         record = file_registry.add("report.md", b"# Report")
         response = export_html_file(record.file_id)
+        output_path = record.path.with_suffix(".html")
 
         self.assertEqual(response.media_type, "text/html; charset=utf-8")
         self.assertIn('filename="report.html"', response.headers["Content-Disposition"])
         self.assertIn(b"<title>Report</title>", response.body)
+        self.assertEqual(output_path.parent, record.path.parent)
+        self.assertTrue(output_path.exists())
+        self.assertIn("<title>Report</title>", output_path.read_text(encoding="utf-8"))
 
     def test_export_pdf_returns_download_response(self) -> None:
         from web.files import file_registry
@@ -163,10 +171,14 @@ class WebApiTests(unittest.TestCase):
 
         record = file_registry.add("report.md", b"# Report")
         response = export_pdf_file(record.file_id)
+        output_path = record.path.with_suffix(".pdf")
 
         self.assertEqual(response.media_type, "application/pdf")
         self.assertIn('filename="report.pdf"', response.headers["Content-Disposition"])
         self.assertTrue(response.body.startswith(b"%PDF"))
+        self.assertEqual(output_path.parent, record.path.parent)
+        self.assertTrue(output_path.exists())
+        self.assertTrue(output_path.read_bytes().startswith(b"%PDF"))
 
     def test_export_rejects_unsupported_type(self) -> None:
         from fastapi import HTTPException
