@@ -4,6 +4,7 @@
 .venv
 __pycache__
 data/uploads
+demo-site
 AGENTS.md
 AGENTS.md:Zone.Identifier
 DEVELOPMENT_PLAN.md

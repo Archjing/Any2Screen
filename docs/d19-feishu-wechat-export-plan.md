@@ -43,7 +43,7 @@
   - 将当前 HTML/PDF 二选一开关改为预设选择控件。
   - 选项：`HTML`、`PDF`、`微信阅读 PDF`、`飞书协作 Markdown`、`飞书协作 HTML`。
   - `Export/导出` 按当前预设下载对应文件。
-  - `src/web/static` 与 `demo-site` 保持一致。
+  - 前端统一使用 `src/web/static` 作为单一静态源。
 
 - D19.5：飞书 API 集成边界文档
   - 新增文档说明最终飞书协作链路：
@@ -78,7 +78,7 @@
 
 - 新增 3 个导出 API：`wechat-pdf`、`feishu-markdown`、`feishu-html`。
 - 所有新增导出文件写入上传文件同目录。
-- 前端和 demo-site 能选择并下载新增预设。
+- 前端能选择并下载新增预设。
 - 现有 HTML/PDF 导出不回归。
 - 测试覆盖路由注册、响应类型、文件名、同目录写入、unsupported type 415。
 - 文档明确说明：D19 的飞书协作是“飞书导入格式准备”，不是“已接入飞书账号和云文档 API”。

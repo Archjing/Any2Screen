@@ -46,7 +46,7 @@
 
 ## Frontend Changes
 
-- 在 `src/web/static` 和 `demo-site` 同步新增导出配置区：
+- 在 `src/web/static` 新增导出配置区：
   - 屏幕目标：`小屏` / `大屏`
   - 输出格式：保留当前 `HTML/PDF` 滑动开关
   - 生成长图：开关
@@ -88,7 +88,6 @@
   - 导出文件写入上传文件同目录。
 - 前端检查：
   - `node --check src/web/static/app.js`
-  - `node --check demo-site/app.js`
   - 手工验证长图开关点亮后 HTML/PDF 控件禁用，点灭后恢复。
 - 回归：
   - `python3 -m unittest discover -s tests`

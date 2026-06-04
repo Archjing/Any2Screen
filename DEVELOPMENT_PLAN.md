@@ -46,12 +46,12 @@
 - [x] D17：已实现移动端阅读视图和基础暖纸主题，预览区支持进入/退出阅读模式。
 - [x] D18：已实现 HTML/PDF 导出，提供 `GET /api/exports/{file_id}/html` 和 `GET /api/exports/{file_id}/pdf`。
 - [x] D18.7：已将页面提示性文案和按钮默认改为中文，页首右侧提供醒目的 EN/中文切换控件，前端使用静态中英文字典切换页面文案，不接入外部翻译 API。
-- [x] D18.8：已创建当前 MVP 的最小化静态展示 demo 网站，独立位于 `demo-site/`，不接入后端，只演示前端交互显示效果，可通过 rsync 同步到 ECS。
-- [x] D18.9：已制定并实现 demo-site Docker 部署配置，面向 Alibaba Cloud Linux 4 容器优化版，用 Docker Compose 部署 Nginx 静态站点和 FastAPI 后端，demo-site 接入真实 `/api/*`。
+- [x] D18.8：已创建当前 MVP 的最小化静态展示 demo 网站；后续已收敛为单一前端源 `src/web/static/`，避免 `demo-site/` 与 Web 静态目录重复维护。
+- [x] D18.9：已制定并实现 Docker 部署配置，面向 Alibaba Cloud Linux 4 容器优化版，用 Nginx 反代 FastAPI 后端和其内置静态前端。
 - [~] D19：实现“微信阅读”与“飞书协作”导出预设。
 - [x] D19.1：接入 Web 后端微信阅读 PDF 导出，提供 `GET /api/exports/{file_id}/wechat-pdf`，输出 `{stem}.wechat.pdf`，复用 `render_pdf(..., wechat=True)` 并写入上传文件同目录。
 - [x] D19.2：接入 Web 后端长图导出，提供 `GET /api/exports/{file_id}/image?screen=small|large&format=png|jpeg`，小屏固定 430 CSS px，大屏固定 1080 CSS px，输出 PNG/JPEG 并写入上传文件同目录。
-- [x] D19.3：更新 Web 和 demo-site 导出配置控件，新增“小屏/大屏”“生成长图”“图片格式 PNG/JPEG”，生成长图点亮时 HTML/PDF 控件禁用，点灭后恢复。
+- [x] D19.3：更新 Web 导出配置控件，新增“小屏/大屏”“生成长图”“图片格式 PNG/JPEG”，生成长图点亮时 HTML/PDF 控件禁用，点灭后恢复。
 - [x] D19.4：实现导出决策规则：长图开启时按屏幕预设和图片格式导出；长图关闭且 PDF+小屏导出微信阅读 PDF；长图关闭且 PDF+大屏导出标准 PDF；HTML 导出不区分小屏/大屏。
 - [ ] D19.4a：实现导出仿真预览模式，预览窗根据当前导出配置切换小屏/大屏宽度、长图预览宽度和 PDF 预览样式，显式区分小屏微信阅读 PDF 与大屏标准 PDF 的版式效果。
 - [ ] D19.4b：在预览区增加当前仿真模式提示，至少覆盖“小屏长图预览”“大屏长图预览”“微信阅读 PDF 预览”“标准 PDF 预览”和默认 HTML 预览。

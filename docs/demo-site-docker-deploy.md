@@ -4,11 +4,15 @@
 
 部署形态：
 
-- `any2screen-nginx`：对外暴露 80 端口，服务 `/demo-site/`，并把 `/api/` 反代到 API 容器。
-- `any2screen-api`：运行 FastAPI，只在 Docker Compose 内网暴露 8000。
+- `any2screen-nginx`：对外暴露 8082 端口，把 `/` 与 `/api/` 反代到 API 容器。
+- `any2screen-api`：运行 FastAPI，并服务 `src/web/static/` 中的前端页面，只在 Docker Compose 内网暴露 8000。
 - `any2screen_uploads`：保存上传文件和同目录导出文件。
 
 ## 首次部署
+
+```bash
+ssh root@39.105.102.5 'mkdir -p /opt/any2screen-api'
+```
 
 ```bash
 rsync -avz --delete \
@@ -19,21 +23,21 @@ rsync -avz --delete \
 ```bash
 ssh root@39.105.102.5
 cd /opt/any2screen-api
-docker compose -f deploy/docker-compose.yml up -d --build
+docker-compose -f deploy/docker-compose.yml up -d --build
 ```
 
 ## 验证
 
 ```bash
-curl http://127.0.0.1/api/health
-docker compose -f deploy/docker-compose.yml ps
-docker compose -f deploy/docker-compose.yml logs -f any2screen-api
+curl http://127.0.0.1:8082/api/health
+docker-compose -f deploy/docker-compose.yml ps
+docker-compose -f deploy/docker-compose.yml logs -f any2screen-api
 ```
 
 浏览器访问：
 
 ```text
-http://39.105.102.5/demo-site/
+http://39.105.102.5:8082/
 ```
 
 ## 更新
@@ -47,7 +51,7 @@ rsync -avz --delete \
 ```bash
 ssh root@39.105.102.5
 cd /opt/any2screen-api
-docker compose -f deploy/docker-compose.yml up -d --build
+docker-compose -f deploy/docker-compose.yml up -d --build
 ```
 
 ## 可复用 Prompt
@@ -59,7 +63,7 @@ docker compose -f deploy/docker-compose.yml up -d --build
 停止服务：
 
 ```bash
-docker compose -f deploy/docker-compose.yml down
+docker-compose -f deploy/docker-compose.yml down
 ```
 
 保留上传数据时不要删除 volume。确认要删除上传和导出文件时再执行：

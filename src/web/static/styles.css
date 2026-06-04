@@ -157,7 +157,7 @@ h1 {
 
 .upload-surface {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  grid-template-columns: minmax(0, 55%) minmax(0, 45%);
   gap: 22px;
   align-items: start;
   margin-top: 28px;
@@ -180,6 +180,11 @@ h1 {
 .upload-form {
   display: grid;
   gap: 12px;
+  width: 100%;
+}
+
+.upload-form button {
+  width: 100%;
 }
 
 .file-picker input {
@@ -304,10 +309,10 @@ h1 {
 
 .preview-actions {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
   align-items: start;
   gap: 14px;
+  flex: 0 0 45%;
+  width: 45%;
 }
 
 .control-group {
@@ -315,14 +320,16 @@ h1 {
   grid-template-columns: 1fr;
   align-content: start;
   gap: 10px;
-  min-width: 148px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .long-image-toggle {
   position: relative;
   display: inline-flex;
   min-height: 42px;
-  min-width: 148px;
+  min-width: 0;
+  width: 100%;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--reader-line);
@@ -362,7 +369,7 @@ h1 {
 
 .secondary-action {
   min-height: 42px;
-  min-width: 132px;
+  min-width: 0;
   border: 1px solid var(--accent);
   background: #ffffff;
   color: var(--accent-ink);
@@ -376,7 +383,8 @@ h1 {
   position: relative;
   display: inline-flex;
   min-height: 42px;
-  min-width: 148px;
+  min-width: 0;
+  width: 100%;
   align-items: center;
   cursor: pointer;
 }
@@ -452,7 +460,8 @@ h1 {
 
 .action-group .reader-toggle,
 .action-group .secondary-action {
-  min-width: 132px;
+  min-width: 0;
+  width: 100%;
 }
 
 .action-group {

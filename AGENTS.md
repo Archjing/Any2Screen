@@ -526,7 +526,7 @@
   - 用户说“同步到服务器”时，执行：
     `rsync -avz --delete --exclude-from=deploy/rsync-excludes.txt ./ root@39.105.102.5:/opt/any2screen-api/`
   - 用户说“远程部署”时，执行：
-    `ssh root@39.105.102.5 'cd /opt/any2screen-api && docker-compose -f deploy/docker-compose.yml up -d --build'`
+    `ssh root@39.105.102.5 'mkdir -p /opt/any2screen-api && cd /opt/any2screen-api && docker-compose -f deploy/docker-compose.yml up -d --build'`
   - 用户说“查看服务器状态”时，执行：
     `ssh root@39.105.102.5 'cd /opt/any2screen-api && docker-compose -f deploy/docker-compose.yml ps'`
   - 用户说“查看 API 日志”时，执行：
@@ -536,6 +536,7 @@
 
   - 默认服务器路径为 `/opt/any2screen-api`
   - 默认使用 `docker-compose`，不替换为 `docker compose`
+  - 远程部署前默认先确保 `/opt/any2screen-api` 已存在
   - 默认使用 `deploy/rsync-excludes.txt` 作为 rsync 排除规则
   - 若命令执行失败，先报告失败点，再判断是否需要环境修正或用户确认
 
