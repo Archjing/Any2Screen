@@ -1,0 +1,5 @@
+services:
+    any2screen-nginx:
+      ports:
+        - "8082:80"
+

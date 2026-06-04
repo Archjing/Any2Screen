@@ -24,7 +24,7 @@ COPY scripts ./scripts
 COPY src ./src
 
 RUN pip install --no-cache-dir -e '.[web]'
-
+RUN python -m playwright install chromium
 EXPOSE 8000
 
 CMD ["python", "src/cli.py", "web", "--host", "0.0.0.0", "--port", "8000"]
