@@ -20,12 +20,12 @@ const I18N = {
     previewFailed: "预览生成失败。",
     previewTruncated: (included, total) => `已显示 ${included}/${total} 个内容块。`,
     previewComplete: (total) => `已显示完整预览，共 ${total} 个内容块。`,
+    previewButton: "预览",
+    exitPreview: "退出预览",
     exportButton: "导出",
     smallScreen: "小屏",
     largeScreen: "大屏",
     longImage: "生成长图",
-    enterReading: "进入阅读",
-    exitReading: "退出阅读",
     workflowUploadTitle: "上传",
     workflowUploadDescription: "文件上传接口会作为 Web、小程序和 App 的共同入口。",
     workflowPreviewTitle: "预览",
@@ -60,12 +60,12 @@ const I18N = {
     previewFailed: "Preview generation failed.",
     previewTruncated: (included, total) => `Showing ${included}/${total} content blocks.`,
     previewComplete: (total) => `Showing the full preview with ${total} content blocks.`,
+    previewButton: "Preview",
+    exitPreview: "Exit preview",
     exportButton: "Export",
     smallScreen: "Small",
     largeScreen: "Large",
     longImage: "Long image",
-    enterReading: "Enter reading",
-    exitReading: "Exit reading",
     workflowUploadTitle: "Upload",
     workflowUploadDescription: "The file upload API is the shared entry for Web, mini programs, and apps.",
     workflowPreviewTitle: "Preview",
@@ -106,6 +106,7 @@ function translatePage() {
   apiStatus.textContent = text(currentApiStatus);
   renderPreviewStatus();
   renderUploadResult();
+  updateReaderButton();
 }
 
 function setPreviewStatus(key, ...args) {
@@ -134,6 +135,13 @@ function renderUploadResult() {
       <div><dt>${text("resultSupported")}</dt><dd>${lastUploadPayload.supported ? text("resultYes") : text("resultNo")}</dd></div>
     </dl>
   `;
+}
+
+function updateReaderButton() {
+  const previewSurface = document.querySelector(".preview-surface");
+  const readerToggle = document.querySelector("#reader-toggle");
+  const isReading = previewSurface.classList.contains("is-reading");
+  readerToggle.textContent = isReading ? text("exitPreview") : text("previewButton");
 }
 
 async function loadApiStatus() {
@@ -170,28 +178,30 @@ function bindUploadForm() {
   const previewStatus = document.querySelector("#preview-status");
   const previewFrame = document.querySelector("#preview-frame");
   const readerToggle = document.querySelector("#reader-toggle");
+  const screenToggle = document.querySelector("#screen-toggle");
   const exportFormatToggle = document.querySelector("#export-format-toggle");
   const documentFormatSwitch = document.querySelector("#document-format-switch");
   const longImageToggle = document.querySelector("#long-image-toggle");
-  const imageFormatOptions = document.querySelector("#image-format-options");
-  const imageFormatInputs = document.querySelectorAll('input[name="image-format"]');
+  const imageFormatSwitch = document.querySelector("#image-format-switch");
+  const imageFormatToggle = document.querySelector("#image-format-toggle");
   const exportRun = document.querySelector("#export-run");
   const previewSurface = document.querySelector(".preview-surface");
   let currentFileId = null;
 
-  function selectedRadioValue(name) {
-    const checked = document.querySelector(`input[name="${name}"]:checked`);
-    return checked ? checked.value : "";
+  function currentScreen() {
+    return screenToggle.checked ? "large" : "small";
+  }
+
+  function currentImageFormat() {
+    return imageFormatToggle.checked ? "jpeg" : "png";
   }
 
   function syncExportControls() {
     const longImage = longImageToggle.checked;
     exportFormatToggle.disabled = longImage;
     documentFormatSwitch.classList.toggle("is-disabled", longImage);
-    imageFormatOptions.classList.toggle("is-disabled", !longImage);
-    imageFormatInputs.forEach((input) => {
-      input.disabled = !longImage;
-    });
+    imageFormatToggle.disabled = !longImage;
+    imageFormatSwitch.classList.toggle("is-disabled", !longImage);
   }
 
   function clearPreview() {
@@ -201,7 +211,7 @@ function bindUploadForm() {
     exportRun.disabled = true;
     previewSurface.classList.remove("is-reading");
     document.body.classList.remove("reader-active");
-    readerToggle.textContent = text("enterReading");
+    updateReaderButton();
   }
 
   function setSelectedFile(file) {
@@ -310,7 +320,7 @@ function bindUploadForm() {
     const nextState = !previewSurface.classList.contains("is-reading");
     previewSurface.classList.toggle("is-reading", nextState);
     document.body.classList.toggle("reader-active", nextState);
-    readerToggle.textContent = nextState ? text("exitReading") : text("enterReading");
+    updateReaderButton();
     if (nextState) {
       previewSurface.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -321,9 +331,9 @@ function bindUploadForm() {
       return;
     }
     const format = exportFormatToggle.checked ? "pdf" : "html";
-    const screen = selectedRadioValue("screen-target") || "small";
+    const screen = currentScreen();
     if (longImageToggle.checked) {
-      const imageFormat = selectedRadioValue("image-format") || "png";
+      const imageFormat = currentImageFormat();
       window.open(`/api/exports/${currentFileId}/image?screen=${screen}&format=${imageFormat}`, "_blank");
       return;
     }
@@ -336,8 +346,6 @@ function bindUploadForm() {
   document.querySelector("#language-toggle").addEventListener("click", () => {
     currentLanguage = currentLanguage === "zh" ? "en" : "zh";
     translatePage();
-    const isReading = previewSurface.classList.contains("is-reading");
-    readerToggle.textContent = isReading ? text("exitReading") : text("enterReading");
   });
 
   syncExportControls();

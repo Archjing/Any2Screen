@@ -298,81 +298,40 @@ h1 {
   color: var(--reader-surface);
   cursor: pointer;
   font: inherit;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .preview-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  align-items: start;
+  gap: 14px;
+}
+
+.control-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
   gap: 10px;
-}
-
-.export-options {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.segmented-control {
-  display: inline-grid;
-  min-height: 42px;
-  grid-auto-flow: column;
-  border: 1px solid var(--reader-line);
-  background: #ffffff;
-}
-
-.segmented-option {
-  position: relative;
-  display: inline-flex;
-  min-width: 72px;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-ink);
-  cursor: pointer;
-}
-
-.segmented-option input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.segmented-option span {
-  display: flex;
-  width: 100%;
-  min-height: 40px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.segmented-option input:checked + span {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.segmented-option input:focus-visible + span {
-  outline: 2px solid var(--warm);
-  outline-offset: -2px;
+  min-width: 148px;
 }
 
 .long-image-toggle {
   position: relative;
   display: inline-flex;
   min-height: 42px;
-  min-width: 108px;
+  min-width: 148px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--reader-line);
   background: #ffffff;
   color: var(--accent-ink);
   cursor: pointer;
+  font: inherit;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .long-image-toggle input {
@@ -388,7 +347,7 @@ h1 {
   min-height: 40px;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 14px;
 }
 
 .long-image-toggle input:checked + span {
@@ -403,12 +362,14 @@ h1 {
 
 .secondary-action {
   min-height: 42px;
-  min-width: 116px;
+  min-width: 132px;
   border: 1px solid var(--accent);
   background: #ffffff;
   color: var(--accent-ink);
   cursor: pointer;
   font: inherit;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .format-switch {
@@ -453,7 +414,9 @@ h1 {
   position: relative;
   z-index: 1;
   text-align: center;
+  font-size: 13px;
   font-weight: 700;
+  padding: 0 14px;
   transition: color 180ms ease;
 }
 
@@ -478,15 +441,22 @@ h1 {
   outline-offset: 3px;
 }
 
-.format-switch.is-disabled,
-.segmented-control.is-disabled {
+.format-switch.is-disabled {
   cursor: not-allowed;
   opacity: 0.42;
 }
 
-.format-switch.is-disabled .format-switch-track,
-.segmented-control.is-disabled .segmented-option {
+.format-switch.is-disabled .format-switch-track {
   pointer-events: none;
+}
+
+.action-group .reader-toggle,
+.action-group .secondary-action {
+  min-width: 132px;
+}
+
+.action-group {
+  justify-items: stretch;
 }
 
 .reader-toggle:disabled,
@@ -592,14 +562,9 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .export-options {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
   .format-switch,
-  .segmented-control,
   .long-image-toggle,
+  .control-group,
   .secondary-action {
     width: 100%;
   }
