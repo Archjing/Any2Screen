@@ -20,7 +20,7 @@ services:
     depends_on:
       - any2screen-api
     ports:
-      - "80:80"
+      - "8082:80"
     volumes:
       - ../demo-site:/usr/share/nginx/html/demo-site:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro

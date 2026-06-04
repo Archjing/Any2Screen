@@ -20,12 +20,15 @@ const I18N = {
     previewFailed: "预览生成失败。",
     previewTruncated: (included, total) => `已显示 ${included}/${total} 个内容块。`,
     previewComplete: (total) => `已显示完整预览，共 ${total} 个内容块。`,
+    exportPreparing: "正在准备导出...",
+    exportFailed: (message) => `导出失败：${message}`,
     previewButton: "预览",
     exitPreview: "退出预览",
     exportButton: "导出",
     smallScreen: "小屏",
     largeScreen: "大屏",
-    longImage: "生成长图",
+    documentMode: "文档",
+    longImageMode: "长图",
     workflowUploadTitle: "上传",
     workflowUploadDescription: "文件上传接口会作为 Web、小程序和 App 的共同入口。",
     workflowPreviewTitle: "预览",
@@ -60,12 +63,15 @@ const I18N = {
     previewFailed: "Preview generation failed.",
     previewTruncated: (included, total) => `Showing ${included}/${total} content blocks.`,
     previewComplete: (total) => `Showing the full preview with ${total} content blocks.`,
+    exportPreparing: "Preparing export...",
+    exportFailed: (message) => `Export failed: ${message}`,
     previewButton: "Preview",
     exitPreview: "Exit preview",
     exportButton: "Export",
     smallScreen: "Small",
     largeScreen: "Large",
-    longImage: "Long image",
+    documentMode: "Document",
+    longImageMode: "Long image",
     workflowUploadTitle: "Upload",
     workflowUploadDescription: "The file upload API is the shared entry for Web, mini programs, and apps.",
     workflowPreviewTitle: "Preview",
@@ -184,6 +190,7 @@ function bindApp() {
   const exportFormatToggle = document.querySelector("#export-format-toggle");
   const documentFormatSwitch = document.querySelector("#document-format-switch");
   const longImageToggle = document.querySelector("#long-image-toggle");
+  const longImageLabel = document.querySelector("#long-image-label");
   const imageFormatSwitch = document.querySelector("#image-format-switch");
   const imageFormatToggle = document.querySelector("#image-format-toggle");
   const exportRun = document.querySelector("#export-run");
@@ -197,8 +204,50 @@ function bindApp() {
     return imageFormatToggle.checked ? "jpeg" : "png";
   }
 
+  function exportUrl() {
+    const format = exportFormatToggle.checked ? "pdf" : "html";
+    const screen = currentScreen();
+    if (longImageToggle.checked) {
+      const imageFormat = currentImageFormat();
+      return apiUrl(`/api/exports/${currentFileId}/image?screen=${screen}&format=${imageFormat}`);
+    }
+    const endpoint = format === "pdf" && screen === "small" ? "wechat-pdf" : format;
+    return apiUrl(`/api/exports/${currentFileId}/${endpoint}`);
+  }
+
+  function exportFilenameFromResponse(response, fallback = "export.bin") {
+    const disposition = response.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    return match ? match[1] : fallback;
+  }
+
+  async function downloadExport(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      let detail = `${response.status}`;
+      try {
+        const payload = await response.json();
+        detail = payload.detail || detail;
+      } catch {
+        detail = response.statusText || detail;
+      }
+      throw new Error(detail);
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = downloadUrl;
+    anchor.download = exportFilenameFromResponse(response);
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(downloadUrl);
+  }
+
   function syncExportControls() {
     const longImage = longImageToggle.checked;
+    longImageLabel.textContent = text(longImage ? "longImageMode" : "documentMode");
     exportFormatToggle.disabled = longImage;
     documentFormatSwitch.classList.toggle("is-disabled", longImage);
     imageFormatToggle.disabled = !longImage;
@@ -330,19 +379,21 @@ function bindApp() {
     }
   });
 
-  exportRun.addEventListener("click", () => {
+  exportRun.addEventListener("click", async () => {
     if (!currentFileId) {
       return;
     }
-    const format = exportFormatToggle.checked ? "pdf" : "html";
-    const screen = currentScreen();
-    if (longImageToggle.checked) {
-      const imageFormat = currentImageFormat();
-      window.open(apiUrl(`/api/exports/${currentFileId}/image?screen=${screen}&format=${imageFormat}`), "_blank");
-      return;
+    const previousState = currentPreviewState;
+    exportRun.disabled = true;
+    setPreviewStatus("exportPreparing");
+    try {
+      await downloadExport(exportUrl());
+      setPreviewStatus(previousState.key, ...(previousState.args || []));
+    } catch (error) {
+      setPreviewStatus("exportFailed", error instanceof Error ? error.message : "unknown error");
+    } finally {
+      exportRun.disabled = false;
     }
-    const endpoint = format === "pdf" && screen === "small" ? "wechat-pdf" : format;
-    window.open(apiUrl(`/api/exports/${currentFileId}/${endpoint}`), "_blank");
   });
 
   longImageToggle.addEventListener("change", syncExportControls);
@@ -350,6 +401,7 @@ function bindApp() {
   document.querySelector("#language-toggle").addEventListener("click", () => {
     currentLanguage = currentLanguage === "zh" ? "en" : "zh";
     translatePage();
+    syncExportControls();
   });
 
   syncExportControls();

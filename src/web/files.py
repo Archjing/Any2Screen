@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
 from pathlib import PurePath
@@ -57,12 +58,54 @@ class FileRegistry:
             content=content,
             path=path,
         )
+        self._write_metadata(record)
         self._records[record.file_id] = record
         return record
 
     def get(self, file_id: str) -> UploadedFileRecord | None:
         # 根据 file_id 查找已上传文件记录。
-        return self._records.get(file_id)
+        record = self._records.get(file_id)
+        if record is not None:
+            return record
+        record = self._read_metadata(file_id)
+        if record is not None:
+            self._records[file_id] = record
+        return record
+
+    def _write_metadata(self, record: UploadedFileRecord) -> None:
+        # 将上传记录元数据写入磁盘，支持跨进程恢复 file_id。
+        metadata_path = record.path.parent / "record.json"
+        metadata = {
+            "file_id": record.file_id,
+            "filename": record.filename,
+            "size_bytes": record.size_bytes,
+            "extension": record.extension,
+            "detected_type": record.detected_type,
+            "supported": record.supported,
+            "path": record.path.name,
+        }
+        metadata_path.write_text(json.dumps(metadata, ensure_ascii=True), encoding="utf-8")
+
+    def _read_metadata(self, file_id: str) -> UploadedFileRecord | None:
+        # 从磁盘恢复上传记录，避免仅靠进程内内存导致 file_id 失效。
+        metadata_path = self.upload_root / file_id / "record.json"
+        if not metadata_path.exists():
+            return None
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        path = metadata_path.parent / metadata["path"]
+        if not path.exists():
+            return None
+        content = path.read_bytes()
+        return UploadedFileRecord(
+            file_id=metadata["file_id"],
+            filename=metadata["filename"],
+            size_bytes=metadata["size_bytes"],
+            extension=metadata["extension"],
+            detected_type=metadata["detected_type"],
+            supported=metadata["supported"],
+            content=content,
+            path=path,
+        )
 
 
 def detect_extension(filename: str) -> str:

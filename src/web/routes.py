@@ -6,7 +6,7 @@ from fastapi import APIRouter, File, HTTPException, Response, UploadFile
 
 from preview import PreviewOptions, generate_preview_html
 from web.document_preview import build_preview_markdown
-from web.export import export_filename, export_html_path, export_image_path, export_pdf_path, export_wechat_pdf_path
+from web.export import content_disposition, export_filename, export_html_path, export_image_path, export_pdf_path, export_wechat_pdf_path
 from web.files import file_registry
 from web.schemas import FileUploadResponse, HealthResponse, PreviewResponse, VersionResponse
 
@@ -101,7 +101,7 @@ def export_html_file(file_id: str) -> Response:
     return Response(
         content=_with_root_base(html_path.read_text(encoding="utf-8")),
         media_type="text/html; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".html")}"'},
+        headers={"Content-Disposition": content_disposition(export_filename(record.filename, ".html"))},
     )
 
 
@@ -113,7 +113,7 @@ def export_pdf_file(file_id: str) -> Response:
     return Response(
         content=pdf_path.read_bytes(),
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".pdf")}"'},
+        headers={"Content-Disposition": content_disposition(export_filename(record.filename, ".pdf"))},
     )
 
 
@@ -125,7 +125,7 @@ def export_wechat_pdf_file(file_id: str) -> Response:
     return Response(
         content=pdf_path.read_bytes(),
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".wechat.pdf")}"'},
+        headers={"Content-Disposition": content_disposition(export_filename(record.filename, ".wechat.pdf"))},
     )
 
 
@@ -141,7 +141,7 @@ def export_image_file(
     return Response(
         content=image_path.read_bytes(),
         media_type=f"image/{format}",
-        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, f".{screen}.{format}")}"'},
+        headers={"Content-Disposition": content_disposition(export_filename(record.filename, f".{screen}.{format}"))},
     )
 
 

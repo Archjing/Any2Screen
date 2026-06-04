@@ -124,7 +124,15 @@ def render_image(
 
             height = page.evaluate("document.body.scrollHeight")
             page.set_viewport_size({"width": width, "height": height + 40})
-            page.screenshot(path=str(image_path), full_page=True, type=image_format)
+            screenshot_kwargs = {
+                "path": str(image_path),
+                "full_page": True,
+                "type": image_format,
+            }
+            if image_format == "jpeg":
+                # 提高 JPEG 编码质量，减少大屏长图的压缩模糊。
+                screenshot_kwargs["quality"] = 95
+            page.screenshot(**screenshot_kwargs)
             browser.close()
 
         return True, image_path.stat().st_size, width, height + 40
@@ -132,4 +140,3 @@ def render_image(
         if verbose:
             print(f"    Image render error: {e}")
         return False, 0, width, 0
-

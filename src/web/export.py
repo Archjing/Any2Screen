@@ -1,5 +1,6 @@
 import tempfile
 from pathlib import Path
+from urllib.parse import quote
 
 from any2html import generate_html
 from html2screen import render_image, render_pdf
@@ -80,3 +81,9 @@ def export_filename(filename: str, suffix: str) -> str:
     # 根据上传文件名生成安全的导出文件名。
     stem = Path(filename).stem or "export"
     return f"{stem}{suffix}"
+
+
+def content_disposition(filename: str) -> str:
+    # 生成同时兼容 ASCII 回退名和 UTF-8 文件名的下载响应头。
+    ascii_fallback = "".join(char if ord(char) < 128 else "_" for char in filename) or "export"
+    return f"attachment; filename=\"{ascii_fallback}\"; filename*=UTF-8''{quote(filename)}"

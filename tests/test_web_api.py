@@ -84,6 +84,23 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(record.detected_type, "unknown")
         self.assertFalse(record.supported)
 
+    def test_file_registry_recovers_record_from_disk(self) -> None:
+        from web.files import FileRegistry
+
+        with TemporaryDirectory() as tmp:
+            writer = FileRegistry(upload_root=tmp)
+            record = writer.add("report.md", b"# Report")
+            reader = FileRegistry(upload_root=tmp)
+
+            recovered = reader.get(record.file_id)
+
+            self.assertIsNotNone(recovered)
+            assert recovered is not None
+            self.assertEqual(recovered.file_id, record.file_id)
+            self.assertEqual(recovered.filename, "report.md")
+            self.assertEqual(recovered.content, b"# Report")
+            self.assertEqual(recovered.path.read_bytes(), b"# Report")
+
     def test_preview_file_generates_markdown_preview(self) -> None:
         from web.files import file_registry
         from web.routes import preview_file
@@ -167,6 +184,22 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(output_path.parent, record.path.parent)
         self.assertTrue(output_path.exists())
         self.assertIn("<title>Report</title>", output_path.read_text(encoding="utf-8"))
+
+    def test_export_uses_utf8_safe_content_disposition(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_image_file
+
+        def fake_render_image(html_path, image_path, width, image_format, verbose=False):
+            image_path.write_bytes(b"\xff\xd8fake")
+            return True, image_path.stat().st_size, width, 1600
+
+        record = file_registry.add("中文报告.md", b"# Report")
+        with patch("web.export.render_image", side_effect=fake_render_image):
+            response = export_image_file(record.file_id, screen="small", format="jpeg")
+
+        disposition = response.headers["Content-Disposition"]
+        self.assertIn('filename="____.small.jpeg"', disposition)
+        self.assertIn("filename*=UTF-8''", disposition)
 
     def test_export_pdf_returns_download_response(self) -> None:
         from web.files import file_registry
