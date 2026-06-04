@@ -12,10 +12,7 @@
 
 ```bash
 rsync -avz --delete \
-  --exclude .git \
-  --exclude .venv \
-  --exclude __pycache__ \
-  --exclude data/uploads \
+  --exclude-from=deploy/rsync-excludes.txt \
   ./ root@39.105.102.5:/opt/any2screen-api/
 ```
 
@@ -43,10 +40,7 @@ http://39.105.102.5/demo-site/
 
 ```bash
 rsync -avz --delete \
-  --exclude .git \
-  --exclude .venv \
-  --exclude __pycache__ \
-  --exclude data/uploads \
+  --exclude-from=deploy/rsync-excludes.txt \
   ./ root@39.105.102.5:/opt/any2screen-api/
 ```
 
@@ -55,6 +49,10 @@ ssh root@39.105.102.5
 cd /opt/any2screen-api
 docker compose -f deploy/docker-compose.yml up -d --build
 ```
+
+## 可复用 Prompt
+
+统一收录见 [docs/prompts.md](/home/zj/workspace/KMS/scripts/Any2Screen/docs/prompts.md:1)。
 
 ## 回滚和清理
 
