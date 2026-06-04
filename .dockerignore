@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+data/uploads
+exports
+demo-site
+tests
+docs

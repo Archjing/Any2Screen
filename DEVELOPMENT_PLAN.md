@@ -41,6 +41,8 @@
 - [x] D17：已实现移动端阅读视图和基础暖纸主题，预览区支持进入/退出阅读模式。
 - [x] D18：已实现 HTML/PDF 导出，提供 `GET /api/exports/{file_id}/html` 和 `GET /api/exports/{file_id}/pdf`。
 - [x] D18.7：已将页面提示性文案和按钮默认改为中文，页首右侧提供醒目的 EN/中文切换控件，前端使用静态中英文字典切换页面文案，不接入外部翻译 API。
+- [x] D18.8：已创建当前 MVP 的最小化静态展示 demo 网站，独立位于 `demo-site/`，不接入后端，只演示前端交互显示效果，可通过 rsync 同步到 ECS。
+- [x] D18.9：已制定并实现 demo-site Docker 部署配置，面向 Alibaba Cloud Linux 4 容器优化版，用 Docker Compose 部署 Nginx 静态站点和 FastAPI 后端，demo-site 接入真实 `/api/*`。
 - [ ] D19：实现“微信阅读”与“飞书协作”导出预设。
 - [ ] D20：实现处理去向选择：阅后即焚、保存原文件、保存转换结果。
 

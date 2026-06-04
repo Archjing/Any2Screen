@@ -1,0 +1,29 @@
+services:
+  any2screen-api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: any2screen-api:demo
+    container_name: any2screen-api
+    restart: unless-stopped
+    environment:
+      ANY2SCREEN_UPLOAD_ROOT: /data/uploads
+    volumes:
+      - any2screen_uploads:/data/uploads
+    expose:
+      - "8000"
+
+  any2screen-nginx:
+    image: nginx:1.27-alpine
+    container_name: any2screen-nginx
+    restart: unless-stopped
+    depends_on:
+      - any2screen-api
+    ports:
+      - "80:80"
+    volumes:
+      - ../demo-site:/usr/share/nginx/html/demo-site:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  any2screen_uploads:

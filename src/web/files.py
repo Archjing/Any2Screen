@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from pathlib import PurePath
 from uuid import uuid4
@@ -75,4 +76,4 @@ def detect_document_type(filename: str) -> str:
     return SUPPORTED_EXTENSIONS.get(extension, "unknown")
 
 
-file_registry = FileRegistry()
+file_registry = FileRegistry(os.environ.get("ANY2SCREEN_UPLOAD_ROOT", "data/uploads"))
