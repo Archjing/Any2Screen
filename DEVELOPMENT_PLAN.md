@@ -38,8 +38,8 @@
 - [x] D14.1：已实现鼠标拖拽上传文件，拖放后复用同一个 `POST /api/files` 上传链路。
 - [x] D15：已实现 Markdown/TXT 预览，提供 `GET /api/previews/{file_id}`，上传后 Web 页面自动展示轻量 HTML 预览。
 - [x] D16：已实现 DOCX/PDF 预览，DOCX 从段落和标题提取 Markdown，PDF 从页面文本提取 Markdown，并复用轻量 HTML 预览链路。
-- [ ] D17：实现移动端阅读视图和基础主题。
-- [ ] D18：实现 HTML/PDF 导出。
+- [x] D17：已实现移动端阅读视图和基础暖纸主题，预览区支持进入/退出阅读模式。
+- [x] D18：已实现 HTML/PDF 导出，提供 `GET /api/exports/{file_id}/html` 和 `GET /api/exports/{file_id}/pdf`。
 - [ ] D19：实现“微信阅读”与“飞书协作”导出预设。
 - [ ] D20：实现处理去向选择：阅后即焚、保存原文件、保存转换结果。
 

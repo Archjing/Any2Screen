@@ -5,6 +5,7 @@ from fastapi import APIRouter, File, HTTPException, Response, UploadFile
 
 from preview import PreviewOptions, generate_preview_html
 from web.document_preview import build_preview_markdown
+from web.export import export_filename, export_html, export_pdf
 from web.files import file_registry
 from web.schemas import FileUploadResponse, HealthResponse, PreviewResponse, VersionResponse
 
@@ -89,6 +90,46 @@ def preview_html(
     # 返回可直接嵌入 iframe 的 HTML 预览响应。
     preview = preview_file(file_id, blocks=blocks, table_rows=table_rows, code_lines=code_lines)
     return Response(content=_with_root_base(preview.html), media_type="text/html; charset=utf-8")
+
+
+@router.get("/exports/{file_id}/html", response_class=Response, tags=["exports"])
+def export_html_file(file_id: str) -> Response:
+    # 根据 file_id 生成完整 HTML 下载响应。
+    record = _get_export_record(file_id)
+    html = export_html(record)
+    return Response(
+        content=_with_root_base(html),
+        media_type="text/html; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".html")}"'},
+    )
+
+
+@router.get("/exports/{file_id}/pdf", response_class=Response, tags=["exports"])
+def export_pdf_file(file_id: str) -> Response:
+    # 根据 file_id 生成 A4 PDF 下载响应。
+    record = _get_export_record(file_id)
+    pdf = export_pdf(record)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{export_filename(record.filename, ".pdf")}"'},
+    )
+
+
+def _get_export_record(file_id: str):
+    # 获取可导出的上传记录并转换错误为 HTTP 响应。
+    record = file_registry.get(file_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="file not found")
+    try:
+        build_preview_markdown(record.detected_type, record.filename, record.content)
+    except UnicodeDecodeError as e:
+        raise HTTPException(status_code=400, detail="file must be UTF-8 encoded") from e
+    except ValueError as e:
+        raise HTTPException(status_code=415, detail="export only supports Markdown, TXT, DOCX and PDF files") from e
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"failed to prepare export: {e}") from e
+    return record
 
 
 def _with_root_base(html: str) -> str:

@@ -19,6 +19,8 @@ class WebApiTests(unittest.TestCase):
         paths = {route.path for route in app.routes}
 
         self.assertIn("/", paths)
+        self.assertIn("/api/exports/{file_id}/html", paths)
+        self.assertIn("/api/exports/{file_id}/pdf", paths)
         self.assertIn("/api/files", paths)
         self.assertIn("/api/health", paths)
         self.assertIn("/api/previews/{file_id}", paths)
@@ -143,6 +145,40 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(response.media_type, "text/html; charset=utf-8")
         self.assertIn(b'<base href="/">', response.body)
         self.assertIn(b"<title>Report</title>", response.body)
+
+    def test_export_html_returns_download_response(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_html_file
+
+        record = file_registry.add("report.md", b"# Report")
+        response = export_html_file(record.file_id)
+
+        self.assertEqual(response.media_type, "text/html; charset=utf-8")
+        self.assertIn('filename="report.html"', response.headers["Content-Disposition"])
+        self.assertIn(b"<title>Report</title>", response.body)
+
+    def test_export_pdf_returns_download_response(self) -> None:
+        from web.files import file_registry
+        from web.routes import export_pdf_file
+
+        record = file_registry.add("report.md", b"# Report")
+        response = export_pdf_file(record.file_id)
+
+        self.assertEqual(response.media_type, "application/pdf")
+        self.assertIn('filename="report.pdf"', response.headers["Content-Disposition"])
+        self.assertTrue(response.body.startswith(b"%PDF"))
+
+    def test_export_rejects_unsupported_type(self) -> None:
+        from fastapi import HTTPException
+        from web.files import file_registry
+        from web.routes import export_html_file
+
+        record = file_registry.add("image.png", b"fake")
+
+        with self.assertRaises(HTTPException) as ctx:
+            export_html_file(record.file_id)
+
+        self.assertEqual(ctx.exception.status_code, 415)
 
     def test_preview_file_rejects_unsupported_type(self) -> None:
         from fastapi import HTTPException

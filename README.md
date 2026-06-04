@@ -310,6 +310,8 @@ python3 scripts/any2screen.py web
 - 健康检查：`http://127.0.0.1:8000/api/health`
 - 文件上传：`POST http://127.0.0.1:8000/api/files`
 - Markdown/TXT/DOCX/PDF 预览：`GET http://127.0.0.1:8000/api/previews/{file_id}`
+- HTML 导出：`GET http://127.0.0.1:8000/api/exports/{file_id}/html`
+- PDF 导出：`GET http://127.0.0.1:8000/api/exports/{file_id}/pdf`
 - OpenAPI：`http://127.0.0.1:8000/openapi.json`
 - Swagger UI：`http://127.0.0.1:8000/docs`
 
@@ -323,6 +325,13 @@ curl -F file=@README.md http://127.0.0.1:8000/api/files
 
 ```bash
 curl http://127.0.0.1:8000/api/previews/{file_id}
+```
+
+导出接口示例：
+
+```bash
+curl -OJ http://127.0.0.1:8000/api/exports/{file_id}/html
+curl -OJ http://127.0.0.1:8000/api/exports/{file_id}/pdf
 ```
 
 ## 扩展子命令

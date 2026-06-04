@@ -44,9 +44,22 @@
 
     <section class="preview-surface" aria-labelledby="preview-title">
       <div class="preview-heading">
-        <span class="step">D15</span>
-        <h2 id="preview-title">Preview</h2>
-        <p id="preview-status">上传 Markdown、TXT、DOCX 或 PDF 后会在这里显示轻量预览。</p>
+        <div class="preview-copy">
+          <span class="step">D17</span>
+          <h2 id="preview-title">Reader Preview</h2>
+          <p id="preview-status">上传 Markdown、TXT、DOCX 或 PDF 后会在这里显示轻量预览。</p>
+        </div>
+        <div class="preview-actions">
+          <label class="format-switch" aria-label="选择导出格式">
+            <input id="export-format-toggle" type="checkbox">
+            <span class="format-switch-track">
+              <span>HTML</span>
+              <span>PDF</span>
+            </span>
+          </label>
+          <button id="export-run" class="secondary-action" type="button" disabled>Export</button>
+          <button id="reader-toggle" class="reader-toggle" type="button" disabled>Enter reading</button>
+        </div>
       </div>
       <iframe id="preview-frame" title="Document preview"></iframe>
     </section>

@@ -7,6 +7,11 @@
   --accent: #0f8f78;
   --accent-ink: #06362f;
   --warm: #eeb85c;
+  --reader-bg: #fbf3df;
+  --reader-surface: #fffaf0;
+  --reader-ink: #221b12;
+  --reader-line: #eadbbd;
+  --reader-shadow: 0 18px 60px rgba(70, 54, 26, 0.16);
 }
 
 * {
@@ -22,6 +27,12 @@ body {
     linear-gradient(315deg, rgba(238, 184, 92, 0.24), transparent 34%),
     var(--bg);
   font-family: "Avenir Next", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body.reader-active {
+  background:
+    linear-gradient(180deg, rgba(251, 243, 223, 0.94), rgba(246, 247, 242, 0.98)),
+    var(--reader-bg);
 }
 
 .app-shell {
@@ -206,25 +217,131 @@ h1 {
 .preview-surface {
   margin-top: 28px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--reader-surface);
+  box-shadow: var(--reader-shadow);
 }
 
 .preview-heading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 18px;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--reader-line);
 }
 
 .preview-heading h2 {
-  margin: 0;
+  margin: 8px 0 0;
 }
 
 .preview-heading p {
-  margin: 0;
+  margin: 6px 0 0;
   color: var(--muted);
   line-height: 1.5;
+}
+
+.preview-copy {
+  min-width: 0;
+}
+
+.reader-toggle {
+  min-height: 42px;
+  min-width: 132px;
+  border: 1px solid var(--reader-ink);
+  background: var(--reader-ink);
+  color: var(--reader-surface);
+  cursor: pointer;
+  font: inherit;
+}
+
+.preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.secondary-action {
+  min-height: 42px;
+  min-width: 116px;
+  border: 1px solid var(--accent);
+  background: #ffffff;
+  color: var(--accent-ink);
+  cursor: pointer;
+  font: inherit;
+}
+
+.format-switch {
+  position: relative;
+  display: inline-flex;
+  min-height: 42px;
+  min-width: 148px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.format-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.format-switch-track {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 42px;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  border: 1px solid var(--reader-line);
+  background: #ffffff;
+  color: var(--accent-ink);
+  overflow: hidden;
+}
+
+.format-switch-track::before {
+  content: "";
+  position: absolute;
+  inset: 3px auto 3px 3px;
+  width: calc(50% - 3px);
+  background: var(--accent);
+  transition: transform 180ms ease;
+}
+
+.format-switch-track span {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-weight: 700;
+  transition: color 180ms ease;
+}
+
+.format-switch-track span:first-child {
+  color: #ffffff;
+}
+
+.format-switch input:checked + .format-switch-track::before {
+  transform: translateX(100%);
+}
+
+.format-switch input:checked + .format-switch-track span:first-child {
+  color: var(--accent-ink);
+}
+
+.format-switch input:checked + .format-switch-track span:last-child {
+  color: #ffffff;
+}
+
+.format-switch input:focus-visible + .format-switch-track {
+  outline: 2px solid var(--warm);
+  outline-offset: 3px;
+}
+
+.reader-toggle:disabled,
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 #preview-frame {
@@ -232,7 +349,19 @@ h1 {
   width: 100%;
   min-height: 520px;
   border: 0;
-  background: #ffffff;
+  background: var(--reader-surface);
+}
+
+.preview-surface.is-reading {
+  margin: 18px auto 0;
+  max-width: min(980px, calc(100vw - 28px));
+  min-height: calc(100vh - 36px);
+  position: relative;
+  z-index: 3;
+}
+
+.preview-surface.is-reading #preview-frame {
+  min-height: calc(100vh - 132px);
 }
 
 .workflow article {
@@ -287,7 +416,8 @@ h2 {
   }
 
   .preview-heading {
-    display: block;
+    display: grid;
+    gap: 14px;
     padding: 18px;
   }
 
@@ -297,5 +427,29 @@ h2 {
 
   #preview-frame {
     min-height: 440px;
+  }
+
+  .reader-toggle {
+    width: 100%;
+  }
+
+  .preview-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .format-switch,
+  .secondary-action {
+    width: 100%;
+  }
+
+  .preview-surface.is-reading {
+    max-width: 100%;
+    min-height: calc(100vh - 20px);
+    margin-top: 10px;
+  }
+
+  .preview-surface.is-reading #preview-frame {
+    min-height: calc(100vh - 150px);
   }
 }

@@ -29,9 +29,20 @@ function bindUploadForm() {
   const result = document.querySelector("#upload-result");
   const previewStatus = document.querySelector("#preview-status");
   const previewFrame = document.querySelector("#preview-frame");
+  const readerToggle = document.querySelector("#reader-toggle");
+  const exportFormatToggle = document.querySelector("#export-format-toggle");
+  const exportRun = document.querySelector("#export-run");
+  const previewSurface = document.querySelector(".preview-surface");
+  let currentFileId = null;
 
   function clearPreview() {
+    currentFileId = null;
     previewFrame.removeAttribute("src");
+    readerToggle.disabled = true;
+    exportRun.disabled = true;
+    previewSurface.classList.remove("is-reading");
+    document.body.classList.remove("reader-active");
+    readerToggle.textContent = "Enter reading";
   }
 
   function setSelectedFile(file) {
@@ -125,7 +136,10 @@ function bindUploadForm() {
       }
       const preview = await response.json();
       clearPreview();
+      currentFileId = file.file_id;
       previewFrame.src = `/api/previews/${file.file_id}/html?blocks=20`;
+      readerToggle.disabled = false;
+      exportRun.disabled = false;
       previewStatus.textContent = preview.truncated
         ? `已显示 ${preview.included_blocks}/${preview.total_blocks} 个内容块。`
         : `已显示完整预览，共 ${preview.total_blocks} 个内容块。`;
@@ -133,6 +147,24 @@ function bindUploadForm() {
       previewStatus.textContent = "预览生成失败。";
     }
   }
+
+  readerToggle.addEventListener("click", () => {
+    const nextState = !previewSurface.classList.contains("is-reading");
+    previewSurface.classList.toggle("is-reading", nextState);
+    document.body.classList.toggle("reader-active", nextState);
+    readerToggle.textContent = nextState ? "Exit reading" : "Enter reading";
+    if (nextState) {
+      previewSurface.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  exportRun.addEventListener("click", () => {
+    if (!currentFileId) {
+      return;
+    }
+    const format = exportFormatToggle.checked ? "pdf" : "html";
+    window.open(`/api/exports/${currentFileId}/${format}`, "_blank");
+  });
 }
 
 loadApiStatus();
