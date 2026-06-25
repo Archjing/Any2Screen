@@ -4,6 +4,7 @@ exports/
 data/uploads/
 .venv/
 *.egg-info/
+docs/
 prompts/
 ./AGENTS.md
 .agents/
