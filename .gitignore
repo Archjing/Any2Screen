@@ -5,3 +5,6 @@ data/uploads/
 .venv/
 *.egg-info/
 prompts/
+./AGENTS.md
+.agents/
+logs/

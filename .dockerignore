@@ -9,3 +9,6 @@ exports
 demo-site
 tests
 docs
+./AGENTS.md
+./.agents
+./logs
