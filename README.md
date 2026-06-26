@@ -143,6 +143,24 @@ Windows：
 py -m playwright install chromium
 ```
 
+### Docker 本地热挂载开发
+
+如果你希望改完 `src/` 或 `scripts/` 后不用重新 build 镜像，可以使用本地覆盖配置：
+
+```bash
+docker compose \
+  -f Any2Screen-server/docker-compose.yml \
+  -f Any2Screen-server/docker-compose.local.yml \
+  up -d --build
+```
+
+说明：
+
+- 首次仍然需要 `--build`，因为基础镜像里要安装 Python 依赖和 Playwright Chromium。
+- 之后修改 `src/`、`src/web/static/`、`scripts/` 会通过宿主机 bind mount 进入容器。
+- `any2screen-api` 在本地覆盖配置里会使用 `--reload` 启动，代码变更后会自动重载。
+- 只有依赖变更或 `Dockerfile` 变更时，才需要再次 `--build`。
+
 ## 统一命令行
 
 总用法：

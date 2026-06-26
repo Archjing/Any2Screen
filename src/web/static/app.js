@@ -216,6 +216,14 @@ function bindUploadForm() {
 
   function exportFilenameFromResponse(response, fallback = "export.bin") {
     const disposition = response.headers.get("Content-Disposition") || "";
+    const utf8Match = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+    if (utf8Match) {
+      try {
+        return decodeURIComponent(utf8Match[1]);
+      } catch {
+        return utf8Match[1];
+      }
+    }
     const match = disposition.match(/filename="?([^"]+)"?/i);
     return match ? match[1] : fallback;
   }

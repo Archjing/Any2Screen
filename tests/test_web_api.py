@@ -201,6 +201,14 @@ class WebApiTests(unittest.TestCase):
         self.assertIn('filename="____.small.jpeg"', disposition)
         self.assertIn("filename*=UTF-8''", disposition)
 
+    def test_export_pdf_includes_utf8_filename_parameter(self) -> None:
+        from web.export import content_disposition, export_filename
+
+        disposition = content_disposition(export_filename("中文报告.md", ".pdf"))
+
+        self.assertIn('filename="____.pdf"', disposition)
+        self.assertIn("filename*=UTF-8''%E4%B8%AD%E6%96%87%E6%8A%A5%E5%91%8A.pdf", disposition)
+
     def test_export_pdf_returns_download_response(self) -> None:
         from web.files import file_registry
         from web.routes import export_pdf_file

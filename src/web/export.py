@@ -85,5 +85,14 @@ def export_filename(filename: str, suffix: str) -> str:
 
 def content_disposition(filename: str) -> str:
     # 生成同时兼容 ASCII 回退名和 UTF-8 文件名的下载响应头。
-    ascii_fallback = "".join(char if ord(char) < 128 else "_" for char in filename) or "export"
-    return f"attachment; filename=\"{ascii_fallback}\"; filename*=UTF-8''{quote(filename)}"
+    fallback = "".join(_latin1_safe_char(char) for char in (filename or "export")) or "export"
+    escaped_fallback = fallback.replace("\\", "\\\\").replace('"', '\\"')
+    return f"attachment; filename=\"{escaped_fallback}\"; filename*=UTF-8''{quote(filename)}"
+
+
+def _latin1_safe_char(char: str) -> str:
+    try:
+        char.encode("latin-1")
+    except UnicodeEncodeError:
+        return "_"
+    return char

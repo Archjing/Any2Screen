@@ -1,5 +1,11 @@
 services:
-    any2screen-nginx:
-      ports:
-        - "8083:80"
+  any2screen-api:
+    command: ["python", "src/cli.py", "web", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ../src:/app/src
+      - ../scripts:/app/scripts
+      - ../pyproject.toml:/app/pyproject.toml:ro
 
+  any2screen-nginx:
+    ports:
+      - "8083:80"
